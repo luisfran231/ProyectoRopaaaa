@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Vendedor - Mi Tienda</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Perfil del Vendedor</h1>
+        <div class="user-info">
+            <p id="user-email"></p>
+            <button id="logout-button">Cerrar Sesión</button>
+        </div>
+        <nav>
+            <a href="catalogo.html">&larr; Volver al Catálogo</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="seller-details-section">
+            <h2 id="seller-email-display"></h2>
+            <div id="seller-average-rating"></div>
+        </section>
+
+        <section id="rate-seller-section">
+            <h3>Calificar a este vendedor</h3>
+            <div class="rating-stars">
+                ${[1, 2, 3, 4, 5].map(star => `<i class="star" data-value="${star}">&#9734;</i>`).join('')}
+            </div>
+            <p id="rating-feedback"></p>
+        </section>
+
+        <section id="seller-products-section">
+            <h3>Todos los productos de este vendedor</h3>
+            <div id="seller-product-list" class="product-grid">
+                <!-- Productos del vendedor se cargarán aquí -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Tu Tienda de Ropa</p>
+    </footer>
+
+    <!-- Scripts de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Mis scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/perfil-vendedor.js"></script>
+</body>
+</html>

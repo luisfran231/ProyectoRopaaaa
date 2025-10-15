@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Tienda de Ropa</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Panel de Vendedor</h1>
+        <div class="user-info">
+            <p id="user-email"></p>
+            <button id="logout-button">Cerrar Sesión</button>
+        </div>
+    </header>
+    <main class="container">
+        <section id="add-product-section">
+            <h2>Añadir Nuevo Producto</h2>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="product-name">Nombre del Producto:</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-desc">Descripción:</label>
+                    <textarea id="product-desc" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Precio (USD):</label>
+                    <input type="number" id="product-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-image">URL de la Imagen:</label>
+                    <input type="url" id="product-image" required>
+                </div>
+                <button type="submit">Agregar Producto</button>
+            </form>
+        </section>
+
+        <section id="my-products-section">
+            <h2>Mis Productos</h2>
+            <div id="my-products-list"></div>
+        </section>
+
+        <section id="my-ratings-section">
+            <h2>Mis Calificaciones</h2>
+            <div id="my-ratings">
+                <p>Aún no tienes calificaciones.</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Tu Tienda de Ropa</p>
+    </footer>
+
+    <!-- Scripts de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Mis scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
