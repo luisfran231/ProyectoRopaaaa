@@ -299,7 +299,9 @@ input[type="password"],
 input[type="url"],
 input[type="number"],
 input[type="file"],
-textarea {
+textarea,
+input[type="date"],
+input[type="time"] {
     width: 100%;
     padding: 0.8rem;
     border: 1px solid #555; /* Borde más oscuro */
@@ -399,6 +401,24 @@ input:focus, textarea:focus {
 
 
 /* --- PESTAÑAS (TABS) --- */
+.tabs-container {
+    position: relative;
+}
+
+.tabs-toggle {
+    display: none; /* Hidden by default */
+    width: 100%;
+    background: var(--light-surface);
+    color: var(--white);
+    padding: 1rem;
+    border: 1px solid #444;
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
 .tabs {
     display: flex;
     border-bottom: 2px solid #444;
@@ -680,6 +700,17 @@ h2 {
     margin-bottom: 1rem;
 }
 
+.delivery-time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.delivery-time-grid .form-group {
+    margin: 0;
+}
+
 .modal-content h2 {
     text-align: left;
     margin-bottom: 1.5rem;
@@ -802,17 +833,32 @@ footer {
 /* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
 @media (max-width: 768px) {
     header {
+        flex-wrap: wrap;
+    }
+
+    .hamburger-menu {
+        display: flex;
+    }
+
+    .user-info {
+        display: none;
         flex-direction: column;
+        width: 100%;
         text-align: center;
-        padding: 1rem;
+        background: var(--light-surface);
+        position: absolute;
+        top: 80px; /* Adjust based on header height */
+        left: 0;
+        padding: 1rem 0;
+        box-shadow: var(--shadow);
     }
 
-    header h1 {
-        margin-bottom: 0.5rem;
+    .user-info.active {
+        display: flex;
     }
 
-    header nav a, .user-info a, .user-info p {
-        margin: 0 0.5rem;
+    .user-info a, .user-info p, .user-info .notification-bell {
+        margin: 1rem 0;
     }
 
     .container {
@@ -851,6 +897,36 @@ footer {
     .form-content {
         padding: 2rem;
     }
+
+    .tabs-toggle {
+        display: block;
+    }
+
+    .tabs {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--light-surface);
+        border: 1px solid #444;
+        border-radius: var(--border-radius);
+        z-index: 1000;
+    }
+
+    .tabs.active {
+        display: flex;
+    }
+
+    .tabs .tab-link {
+        border-bottom: 1px solid #444;
+    }
+
+    .delivery-time-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }
 
 .ticket-logo-container {
@@ -885,36 +961,4 @@ footer {
     transition: all 0.3s linear;
     position: relative;
     transform-origin: 1px;
-}
-
-/* --- HEADER RESPONSIVE --- */
-@media (max-width: 768px) {
-    header {
-        flex-wrap: wrap;
-    }
-
-    .hamburger-menu {
-        display: flex;
-    }
-
-    .user-info {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        text-align: center;
-        background: var(--light-surface);
-        position: absolute;
-        top: 80px; /* Adjust based on header height */
-        left: 0;
-        padding: 1rem 0;
-        box-shadow: var(--shadow);
-    }
-
-    .user-info.active {
-        display: flex;
-    }
-
-    .user-info a, .user-info p, .user-info .notification-bell {
-        margin: 1rem 0;
-    }
 }

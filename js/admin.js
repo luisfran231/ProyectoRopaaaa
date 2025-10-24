@@ -24,6 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA DE PESTAÑAS ---
     const tabs = document.querySelectorAll('.tab-link');
     const tabContents = document.querySelectorAll('.tab-content');
+    const tabsToggle = document.getElementById('tabs-toggle');
+    const tabsNav = document.getElementById('tabs-nav');
+
+    if (tabsToggle && tabsNav) {
+        tabsToggle.addEventListener('click', () => {
+            tabsNav.classList.toggle('active');
+        });
+
+        tabsNav.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-link')) {
+                tabsNav.classList.remove('active');
+            }
+        });
+    }
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
