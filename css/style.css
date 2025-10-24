@@ -610,6 +610,8 @@ h2 {
     color: var(--accent-light-lavender);
 }
 
+
+
 /* --- PÁGINA DE DETALLE DE PRODUCTO -- */
 .product-detail-layout {
     display: grid;
@@ -651,18 +653,18 @@ h2 {
     font-size: 1.2rem;
 }
 
-/* --- MODAL --- */
+/* Ocultar modal al inicio */
 .modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: none; /* Oculto por defecto */
     position: fixed;
-    z-index: 1000;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo de modal más oscuro */
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
 }
 
 .modal-content {
@@ -807,4 +809,68 @@ footer {
     margin-top: 2rem;
     background: var(--light-surface);
     color: var(--medium-text);
+}
+
+/* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    header h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    header nav a, .user-info a, .user-info p {
+        margin: 0 0.5rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+
+    .product-card img {
+        height: 200px; /* Ajustar altura de imagen en móviles */
+    }
+
+    .product-detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .product-detail-info h2 {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-wrapper-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-branding {
+        display: none; /* Ocultar en pantallas pequeñas para más foco */
+    }
+    .form-content {
+        padding: 2rem;
+    }
+}
+
+.ticket-logo-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.ticket-logo {
+    max-width: 100px;
+    height: auto;
 }

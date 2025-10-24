@@ -161,24 +161,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 myProductsList.innerHTML = '<p>Aún no has añadido ningún producto.</p>';
                 return;
             }
+            myProductsList.className = 'product-grid';
             snapshot.forEach(doc => {
                 const product = doc.data();
+                const productId = doc.id;
                 const productEl = document.createElement('div');
-                productEl.className = 'product-item-admin';
+                productEl.className = 'product-card';
                 productEl.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}" width="100">
-                    <h4>${product.name}</h4>
-                    <p>Precio: MXN $${product.price.toFixed(2)}</p>
-                    <p>Talla: ${product.size || 'N/A'}</p>
-                    <p>Género: ${product.gender || 'N/A'}</p>
-                    <p>Estado: ${product.status}</p>
-                    <button data-id="${doc.id}" data-status="${product.status}" class="toggle-status-btn">
-                        Marcar como ${product.status === 'disponible' ? 'Vendido' : 'Disponible'}
-                    </button>
+                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <div class="product-card-content">
+                        <h3>${product.name}</h3>
+                        <p class="price">$${product.price.toFixed(2)}</p>
+                        <p>${product.description}</p>
+                    </div>
+                    <div class="product-card-actions">
+                        <button class="action-btn delete-btn" data-product-id="${productId}">Eliminar</button>
+                    </div>
                 `;
                 myProductsList.appendChild(productEl);
             });
+
+            const deleteButtons = myProductsList.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = e.target.dataset.productId;
+                    deleteProduct(productId);
+                });
+            });
         });
+    }
+
+    function deleteProduct(productId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+            db.collection('products').doc(productId).delete()
+                .then(() => {
+                    console.log('Producto eliminado');
+                })
+                .catch(error => {
+                    console.error('Error al eliminar el producto: ', error);
+                });
+        }
     }
 
     function loadRatings(sellerId) {
@@ -283,6 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.querySelector('.close-button').style.display = 'block';
 
                 modalOrderDetails.innerHTML = `
+                    <div class="ticket-logo-container">
+                        <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo" class="ticket-logo">
+                    </div>
                     <div class="order-meta">
                         <p><strong>Fecha:</strong> ${formattedDate}</p>
                     </div>
