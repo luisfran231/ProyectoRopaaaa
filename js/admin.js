@@ -59,6 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     userEmailEl.textContent = `Vendedor: ${currentUser.username}`;
                     viewCatalogLink.style.display = 'none'; // Ocultar "Ver Catálogo"
 
+                    const profileLink = document.createElement('a');
+                    profileLink.textContent = 'Mi Perfil';
+                    profileLink.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+
+                    const userNav = document.getElementById('main-nav');
+                    const logoutButton = document.getElementById('logout-button');
+                    userNav.insertBefore(profileLink, logoutButton);
+
                     loadProducts(currentUser.uid);
                     loadRatings(currentUser.uid);
                     loadOrders(currentUser.uid);

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Cliente - BZ Online</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img">
+            <h1>BZ Online</h1>
+        </div>
+        <button class="hamburger-menu" id="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="user-info" id="main-nav">
+            <p id="user-email"></p>
+            <a href="catalogo.html">&larr; Volver al Catálogo</a>
+            <button id="logout-button">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="client-profile-section">
+            <h2>Mi Perfil</h2>
+            <div class="profile-details">
+                <p><strong>Nombre de Usuario:</strong> <span id="profile-username"></span></p>
+                <p><strong>Correo Electrónico:</strong> <span id="profile-email"></span></p>
+                <p><strong>Dirección de Envío:</strong> <span id="profile-address"></span></p>
+                <button id="edit-profile-btn">Editar Perfil</button>
+            </div>
+        </section>
+
+        <section id="client-orders-section">
+            <h2>Mis Pedidos</h2>
+            <div id="client-orders-list">
+                <!-- Los pedidos del cliente se cargarán aquí -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Tu Tienda de Ropa</p>
+    </footer>
+
+    <!-- Modal de Edición de Perfil -->
+    <div id="edit-profile-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Editar Perfil</h2>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-username">Nombre de Usuario:</label>
+                    <input type="text" id="edit-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-address">Dirección de Envío:</label>
+                    <textarea id="edit-address" rows="3"></textarea>
+                </div>
+                <button type="submit">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Mis scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/perfil-cliente.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

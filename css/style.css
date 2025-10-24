@@ -661,39 +661,167 @@ h2 {
     font-size: 1.2rem;
 }
 
-/* Ocultar modal al inicio */
+/* Estilos para el modal */
 .modal {
     display: none; /* Oculto por defecto */
-    position: fixed;
-    top: 0;
+    position: fixed; /* Permanece en su lugar */
+    z-index: 1; /* Se sitúa por encima de todo */
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+    top: 0;
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Alto completo */
+    overflow: auto; /* Habilitar scroll si es necesario */
+    background-color: rgba(0,0,0,0.4); /* Fondo semi-transparente */
+    padding-top: 60px;
 }
 
 .modal-content {
-    background: var(--light-surface);
-    padding: 2rem;
-    border-radius: var(--border-radius);
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
-    width: 90%;
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
     max-width: 500px;
+    border-radius: 8px;
     position: relative;
-    color: var(--dark-text);
 }
 
 .close-button {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-size: 1.5rem;
+    color: #aaa;
+    float: right;
+    font-size: 28px;
     font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
     cursor: pointer;
-    color: var(--dark-text);
+}
+
+.modal-content form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.modal-content form input[type="text"],
+.modal-content form input[type="number"],
+.modal-content form input[type="url"],
+.modal-content form textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.modal-content form button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal-content form button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para el estado del producto */
+.product-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+.product-status.sold {
+    background-color: #dc3545;
+    color: white;
+}
+
+.product-status.available {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Estilos para las acciones del producto (botones de editar/vender) */
+.product-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.product-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: white;
+}
+
+.edit-product-btn {
+    background-color: #ffc107;
+}
+
+.edit-product-btn:hover {
+    background-color: #e0a800;
+}
+
+.toggle-sold-btn {
+    background-color: #17a2b8;
+}
+
+.toggle-sold-btn:hover {
+    background-color: #138496;
+}
+
+/* Clase para ocultar elementos */
+.hidden {
+    display: none !important;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card {
+        padding: 10px;
+    }
+
+    .product-card img {
+        max-height: 150px;
+    }
+
+    .product-card h3 {
+        font-size: 1.1em;
+    }
+
+    .product-card .price {
+        font-size: 1em;
+    }
+
+    .product-actions button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
 }
 
 #delivery-options div {
@@ -846,11 +974,12 @@ footer {
         width: 100%;
         text-align: center;
         background: var(--light-surface);
-        position: absolute;
+        position: fixed;
         top: 80px; /* Adjust based on header height */
         left: 0;
         padding: 1rem 0;
         box-shadow: var(--shadow);
+        z-index: 1000;
     }
 
     .user-info.active {
@@ -895,7 +1024,7 @@ footer {
         display: none; /* Ocultar en pantallas pequeñas para más foco */
     }
     .form-content {
-        padding: 2rem;
+        padding: 3rem;
     }
 
     .tabs-toggle {
@@ -926,6 +1055,12 @@ footer {
     .delivery-time-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-content {
+        padding: 1.5rem;
     }
 }
 

@@ -21,6 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentUser = { ...user, ...userData };
                     userEmailEl.textContent = `${currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}: ${currentUser.username}`;
 
+                    const profileLink = document.createElement('a');
+                    profileLink.textContent = 'Mi Perfil';
+                    if (currentUser.role === 'cliente') {
+                        profileLink.href = `perfil-cliente.html?id=${currentUser.uid}`;
+                    } else if (currentUser.role === 'vendedor') {
+                        profileLink.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+                    }
+
+                    const userNav = document.getElementById('main-nav');
+                    const logoutButton = document.getElementById('logout-button');
+                    userNav.insertBefore(profileLink, logoutButton);
                     if (currentUser.role === 'cliente') {
                         loadProducts();
                         loadNotifications(currentUser.uid);
@@ -42,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function loadProducts() {
-        db.collection('products').where('status', '==', 'disponible').onSnapshot(snapshot => {
+        db.collection('products').onSnapshot(snapshot => {
             productList.innerHTML = '';
             if (snapshot.empty) {
                 productList.innerHTML = '<p>No hay productos disponibles.</p>';
@@ -61,11 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <h3>${product.name}</h3>
                             <p class="price">MXN $${product.price.toFixed(2)}</p>
                             <div class="seller-info">
-                                <p class="seller">Vendido por: ${product.sellerUsername}</p>
+                                <p class="seller">Vendido por: <a href="perfil-vendedor.html?id=${product.sellerId}">${product.sellerUsername}</a></p>
                                 <div class="seller-rating">
                                     ${sellerRating.average} ★ (${sellerRating.count} calificaciones)
                                 </div>
                             </div>
+                            ${product.isSold ? '<span class="product-status sold">VENDIDO</span>' : '<span class="product-status available">DISPONIBLE</span>'}
                         </div>
                     </a>
                     <a href="producto.html?id=${doc.id}" class="details-btn">Ver Detalles</a>
