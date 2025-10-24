@@ -7,72 +7,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutButton = document.getElementById('logout-button');
     const sellerEmailDisplay = document.getElementById('seller-email-display');
     const sellerAverageRating = document.getElementById('seller-average-rating');
-    const ratingStarsContainer = document.querySelector('#rate-seller-section .rating-stars');
+    const ratingStarsContainer = document.getElementById('rating-stars-container');
     const ratingFeedback = document.getElementById('rating-feedback');
     const sellerProductList = document.getElementById('seller-product-list');
 
     let currentUser;
     let sellerId;
 
-    // 1. Auth Guard y obtener ID del vendedor
+    // --- INICIALIZACIÓN ---
     auth.onAuthStateChanged(user => {
         if (user) {
-            currentUser = user;
-            userEmailEl.textContent = `Cliente: ${currentUser.email}`;
+            db.collection('users').doc(user.uid).get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    currentUser = user;
+                    currentUser.username = userData.username;
 
-            // Obtener el ID del vendedor de la URL
-            const params = new URLSearchParams(window.location.search);
-            sellerId = params.get('id');
-
-            if (sellerId) {
-                loadSellerData(sellerId);
-            } else {
-                window.location.href = 'catalogo.html'; // Si no hay ID, volver al catálogo
-            }
+                    userEmailEl.textContent = `${userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}: ${userData.username}`;
+                    
+                    const params = new URLSearchParams(window.location.search);
+                    sellerId = params.get('id');
+        
+                    if (sellerId) {
+                        loadSellerData(sellerId);
+                        setupStarRating();
+                    } else {
+                        window.location.href = 'catalogo.html';
+                    }
+                } else {
+                    auth.signOut();
+                }
+            });
         } else {
             window.location.href = 'index.html';
         }
     });
 
-    // 2. Logout
     logoutButton.addEventListener('click', () => {
         auth.signOut().then(() => window.location.href = 'index.html');
     });
 
-    // 3. Cargar toda la información del vendedor
+    // --- CARGA DE DATOS DEL VENDEDOR ---
     function loadSellerData(id) {
-        // Cargar email del vendedor
+        // Cargar email
         db.collection('users').doc(id).get().then(doc => {
             if (doc.exists) {
-                sellerEmailDisplay.textContent = `Vendedor: ${doc.data().email}`;
+                sellerEmailDisplay.textContent = `Vendedor: ${doc.data().username}`;
             }
         });
 
-        // Cargar productos del vendedor
+        // Cargar productos
         db.collection('products').where('sellerId', '==', id).onSnapshot(snapshot => {
             sellerProductList.innerHTML = '';
             if (snapshot.empty) {
-                sellerProductList.innerHTML = '<p>Este vendedor no tiene productos.</p>';
+                sellerProductList.innerHTML = '<p>Este vendedor aún no tiene productos a la venta.</p>';
                 return;
             }
             snapshot.forEach(doc => {
                 const product = doc.data();
                 const productEl = document.createElement('div');
-                productEl.className = 'product-card-small'; // Usar una clase más pequeña si es necesario
+                productEl.className = 'product-card'; // Usamos la clase estándar para consistencia
                 productEl.innerHTML = `
                     <img src="${product.imageUrl}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <p class="price">$${product.price.toFixed(2)}</p>
-                    <p>Estado: ${product.status}</p>
+                    <div class="product-card-content">
+                        <h3>${product.name}</h3>
+                        <p class="price">$${product.price.toFixed(2)}</p>
+                        <p>${product.description}</p>
+                    </div>
                 `;
                 sellerProductList.appendChild(productEl);
             });
         });
 
-        // Cargar calificaciones del vendedor
+        // Cargar y mostrar calificación promedio
         db.collection('ratings').where('sellerId', '==', id).onSnapshot(snapshot => {
+            sellerAverageRating.innerHTML = ''; // Limpiar antes de renderizar
             if (snapshot.empty) {
-                sellerAverageRating.innerHTML = '<h3>Aún no tiene calificaciones</h3>';
+                sellerAverageRating.innerHTML = '<span>Aún no tiene calificaciones</span>';
                 return;
             }
             let totalStars = 0;
@@ -81,18 +92,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalStars += doc.data().stars;
                 ratingCount++;
             });
-            const average = (totalStars / ratingCount).toFixed(1);
-            sellerAverageRating.innerHTML = `<h3>Calificación Promedio: ${average} ★ (${ratingCount} votos)</h3>`;
+            const average = totalStars / ratingCount;
+            const averageRounded = Math.round(average);
+
+            const ratingValue = document.createElement('span');
+            ratingValue.textContent = `${average.toFixed(1)} de 5`;
+            
+            const starsWrapper = document.createElement('div');
+            starsWrapper.className = 'rating-stars';
+
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                star.className = 'star';
+                star.innerHTML = '&#9733;'; // Usamos el caracter de estrella llena
+                if (i <= averageRounded) {
+                    star.classList.add('filled');
+                }
+                starsWrapper.appendChild(star);
+            }
+            
+            sellerAverageRating.appendChild(ratingValue);
+            sellerAverageRating.appendChild(starsWrapper);
         });
     }
 
-    // 4. Lógica para calificar
-    ratingStarsContainer.addEventListener('click', e => {
-        if (e.target.classList.contains('star')) {
-            const stars = parseInt(e.target.dataset.value);
-            rateSeller(stars);
+    // --- LÓGICA DEL SISTEMA DE CALIFICACIÓN ---
+    function setupStarRating() {
+        ratingStarsContainer.innerHTML = ''; // Limpiar contenedor
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('i');
+            star.className = 'star';
+            star.dataset.value = i;
+            star.innerHTML = '&#9734;'; // Estrella vacía
+            ratingStarsContainer.appendChild(star);
         }
-    });
+
+        const stars = ratingStarsContainer.querySelectorAll('.star');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', handleStarHover);
+            star.addEventListener('mouseout', handleStarMouseOut);
+            star.addEventListener('click', handleStarClick);
+        });
+    }
+
+    function handleStarHover(e) {
+        const hoverValue = e.target.dataset.value;
+        const stars = ratingStarsContainer.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.classList.remove('hovered');
+            if (star.dataset.value <= hoverValue) {
+                star.classList.add('hovered');
+            }
+        });
+    }
+
+    function handleStarMouseOut() {
+        ratingStarsContainer.querySelectorAll('.star').forEach(star => star.classList.remove('hovered'));
+    }
+
+    function handleStarClick(e) {
+        const starsValue = parseInt(e.target.dataset.value);
+        rateSeller(starsValue);
+    }
 
     function rateSeller(stars) {
         if (!sellerId || !currentUser) return;
@@ -101,20 +163,25 @@ document.addEventListener('DOMContentLoaded', () => {
         db.collection('ratings').doc(ratingId).set({
             sellerId: sellerId,
             customerId: currentUser.uid,
-            customerEmail: currentUser.email,
+            customerUsername: currentUser.username, // Guardar el username del cliente
             stars: stars
         }, { merge: true })
         .then(() => {
             ratingFeedback.textContent = `¡Gracias! Has calificado con ${stars} estrellas.`;
-            // Marcar visualmente las estrellas
-            Array.from(ratingStarsContainer.children).forEach(child => {
-                if(child.tagName === 'I') {
-                    child.innerHTML = parseInt(child.dataset.value) <= stars ? '&#9733;' : '&#9734;';
+            // Actualizar visualmente las estrellas seleccionadas
+            const starElements = ratingStarsContainer.querySelectorAll('.star');
+            starElements.forEach(star => {
+                star.innerHTML = parseInt(star.dataset.value) <= stars ? '&#9733;' : '&#9734;';
+                star.classList.remove('hovered');
+                if (parseInt(star.dataset.value) <= stars) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
                 }
             });
         })
         .catch(error => {
-            ratingFeedback.textContent = 'Error al guardar la calificación.';
+            ratingFeedback.textContent = 'Error al guardar la calificación. Inténtalo de nuevo.';
             console.error("Error al calificar: ", error);
         });
     }

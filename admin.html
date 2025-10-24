@@ -3,53 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Tienda de Ropa</title>
+    <title>Admin - Bz Online</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
-        <h1>Panel de Vendedor</h1>
-        <div class="user-info">
-            <p id="user-email"></p>
-            <button id="logout-button">Cerrar Sesión</button>
+        <div class="logo-container">
+            <img src="logo.jpg" alt="Logo de la Tienda" class="logo-img">
+            <h1>BZ Online</h1>
         </div>
+        <nav class="user-info">
+            <div id="notification-bell" class="notification-bell">
+                <i class="bell-icon">&#128276;</i>
+                <span id="notification-count" class="notification-count" style="display:none;">0</span>
+            </div>
+            <p id="user-email"></p>
+            <a href="catalogo.html" id="view-catalog-link">Ver Catálogo</a>
+            <button id="logout-button">Cerrar Sesión</button>
+        </nav>
     </header>
     <main class="container">
-        <section id="add-product-section">
-            <h2>Añadir Nuevo Producto</h2>
-            <form id="add-product-form">
-                <div class="form-group">
-                    <label for="product-name">Nombre del Producto:</label>
-                    <input type="text" id="product-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-desc">Descripción:</label>
-                    <textarea id="product-desc" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="product-price">Precio (USD):</label>
-                    <input type="number" id="product-price" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-image">URL de la Imagen:</label>
-                    <input type="url" id="product-image" required>
-                </div>
-                <button type="submit">Agregar Producto</button>
-            </form>
-        </section>
+        <div class="tabs">
+            <button class="tab-link active" data-tab="pedidos">Pedidos</button>
+            <button class="tab-link" data-tab="productos">Mis Productos</button>
+            <button class="tab-link" data-tab="nuevo-producto">Añadir Producto</button>
+            <button class="tab-link" data-tab="calificaciones">Calificaciones</button>
+        </div>
 
-        <section id="my-products-section">
+        <div id="pedidos" class="tab-content active">
+            <h2>Pedidos Recibidos</h2>
+            <div id="orders-list"></div>
+        </div>
+
+        <div id="productos" class="tab-content">
             <h2>Mis Productos</h2>
             <div id="my-products-list"></div>
-        </section>
+        </div>
 
-        <section id="my-ratings-section">
+        <div id="nuevo-producto" class="tab-content">
+            <h2>Añadir Nuevo Producto</h2>
+            <form id="add-product-form" class="modern-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-name">Nombre del Producto</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Precio (MXN)</label>
+                        <input type="number" id="product-price" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="product-desc">Descripción</label>
+                    <textarea id="product-desc" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-size">Talla</label>
+                        <select id="product-size" required>
+                            <option value="">Selecciona una talla</option>
+                            <option value="CH">CH</option>
+                            <option value="M">M</option>
+                            <option value="G">G</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-gender">Género</label>
+                        <select id="product-gender" required>
+                            <option value="">Selecciona el género</option>
+                            <option value="Dama">Dama</option>
+                            <option value="Caballero">Caballero</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="image-upload">Imagen del Producto</label>
+                    <div class="image-upload-wrapper">
+                        <input type="file" id="image-upload" accept="image/*" class="image-upload-input">
+                        <label for="image-upload" class="image-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Seleccionar archivo</span>
+                        </label>
+                        <small id="image-upload-status"></small>
+                    </div>
+                    <input type="hidden" id="product-image" name="product-image" required>
+                </div>
+                <button type="submit" class="submit-btn">Agregar Producto</button>
+            </form>
+        </div>
+
+        <div id="calificaciones" class="tab-content">
             <h2>Mis Calificaciones</h2>
-            <div id="my-ratings">
-                <p>Aún no tienes calificaciones.</p>
-            </div>
-        </section>
+            <div id="my-ratings"></div>
+        </div>
     </main>
+
+    <!-- Modal para Detalles del Pedido -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Detalles del Pedido</h2>
+            <div id="modal-order-details"></div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 Tu Tienda de Ropa</p>
     </footer>
@@ -58,6 +115,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
     <!-- Mis scripts -->
     <script src="js/firebase-config.js"></script>

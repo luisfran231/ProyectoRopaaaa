@@ -3,16 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo - Tienda de Ropa</title>
+    <title>Catálogo - BZ Online</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-barcode@latest/dist/jspdf-barcode.all.min.js"></script>
 </head>
 <body>
     <header>
-        <h1>Catálogo de Productos</h1>
-        <div class="user-info">
-            <p id="user-email"></p>
-            <button id="logout-button">Cerrar Sesión</button>
+        <div class="logo-container">
+            <img src="logo.jpg" alt="Logo de la Tienda" class="logo-img">
+            <h1>BZ Online</h1>
         </div>
+        <nav class="user-info">
+            <div id="notification-bell" class="notification-bell">
+                <i class="bell-icon">&#128276;</i>
+                <span id="notification-count" class="notification-count" style="display:none;">0</span>
+                <div id="notification-dropdown" class="notification-dropdown" style="display:none;"></div>
+            </div>
+            <p id="user-email"></p>
+            <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
+            <button id="logout-button">Cerrar Sesión</button>
+        </nav>
     </header>
     <main class="container">
         <section id="product-list" class="product-grid">

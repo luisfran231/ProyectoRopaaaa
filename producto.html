@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Producto - BZ Online</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="catalogo.html"><img src="logo.jpg" alt="Logo de la Tienda" class="logo-img"></a>
+            <h1>BZ Online</h1>
+        </div>
+        <nav class="user-info">
+            <p id="user-display"></p>
+            <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
+            <button id="logout-button">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main class="container" id="product-detail-container">
+        <!-- Los detalles del producto se cargarán aquí -->
+    </main>
+
+    <!-- Modal para seleccionar lugar de entrega -->
+    <div id="delivery-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Elige el lugar de entrega</h2>
+            <div id="delivery-options">
+                <!-- Las opciones de entrega se cargarán aquí -->
+            </div>
+            <div class="delivery-time-inputs">
+                <label for="delivery-day">Día de encuentro:</label>
+                <input type="date" id="delivery-day" name="delivery-day">
+                <label for="delivery-time">Hora de encuentro:</label>
+                <input type="time" id="delivery-time" name="delivery-time">
+            </div>
+            <button id="confirm-order-btn">Confirmar Pedido</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Tu Tienda de Ropa</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/producto.js"></script>
+</body>
+</html>

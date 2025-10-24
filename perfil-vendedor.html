@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil del Vendedor - Mi Tienda</title>
+    <title>Perfil del Vendedor - BZ Online</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,13 +21,15 @@
     <main class="container">
         <section id="seller-details-section">
             <h2 id="seller-email-display"></h2>
-            <div id="seller-average-rating"></div>
+            <div id="seller-average-rating">
+                <!-- La calificación promedio se cargará aquí -->
+            </div>
         </section>
 
         <section id="rate-seller-section">
-            <h3>Calificar a este vendedor</h3>
-            <div class="rating-stars">
-                ${[1, 2, 3, 4, 5].map(star => `<i class="star" data-value="${star}">&#9734;</i>`).join('')}
+            <h3>Califica a este vendedor</h3>
+            <div class="rating-stars" id="rating-stars-container">
+                <!-- Las estrellas para calificar se cargarán aquí dinámicamente -->
             </div>
             <p id="rating-feedback"></p>
         </section>
