@@ -273,18 +273,6 @@ button:hover, .button-style:hover {
     align-items: center;
 }
 
-@media (max-width: 768px) {
-    .form-wrapper-grid {
-        grid-template-columns: 1fr;
-    }
-    .form-branding {
-        display: none; /* Ocultar en pantallas pequeñas para más foco */
-    }
-    .form-content {
-        padding: 2rem;
-    }
-}
-
 /* --- FORMULARIOS GENERALES (CAMPOS) --- */
 form {
     background: var(--light-background);
@@ -873,4 +861,60 @@ footer {
 .ticket-logo {
     max-width: 100px;
     height: auto;
+}
+
+/* --- HAMBURGER MENU --- */
+.hamburger-menu {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 2rem;
+    height: 2rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
+
+.hamburger-menu span {
+    width: 2rem;
+    height: 0.25rem;
+    background: var(--white);
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+}
+
+/* --- HEADER RESPONSIVE --- */
+@media (max-width: 768px) {
+    header {
+        flex-wrap: wrap;
+    }
+
+    .hamburger-menu {
+        display: flex;
+    }
+
+    .user-info {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        background: var(--light-surface);
+        position: absolute;
+        top: 80px; /* Adjust based on header height */
+        left: 0;
+        padding: 1rem 0;
+        box-shadow: var(--shadow);
+    }
+
+    .user-info.active {
+        display: flex;
+    }
+
+    .user-info a, .user-info p, .user-info .notification-bell {
+        margin: 1rem 0;
+    }
 }

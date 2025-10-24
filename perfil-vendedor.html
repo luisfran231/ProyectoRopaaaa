@@ -8,13 +8,19 @@
 </head>
 <body>
     <header>
-        <h1>Perfil del Vendedor</h1>
-        <div class="user-info">
-            <p id="user-email"></p>
-            <button id="logout-button">Cerrar Sesión</button>
+        <div class="logo-container">
+            <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img">
+            <h1>BZ Online</h1>
         </div>
-        <nav>
+        <button class="hamburger-menu" id="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="user-info" id="main-nav">
+            <p id="user-email"></p>
             <a href="catalogo.html">&larr; Volver al Catálogo</a>
+            <button id="logout-button">Cerrar Sesión</button>
         </nav>
     </header>
 
@@ -54,5 +60,6 @@
     <!-- Mis scripts -->
     <script src="js/firebase-config.js"></script>
     <script src="js/perfil-vendedor.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
