@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil del Vendedor - BZ Online</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-0aM1..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <header>
@@ -19,44 +20,54 @@
         </button>
         <nav class="user-info" id="main-nav">
             <p id="user-email"></p>
-            <a href="catalogo.html">&larr; Volver al Catálogo</a>
+            <button onclick="history.back()" class="back-button">&larr; Volver a la anterior</button>
             <button id="logout-button">Cerrar Sesión</button>
         </nav>
     </header>
 
     <main class="container">
-        <!-- Sección para ver los productos de OTRO vendedor -->
-        <section id="other-seller-products-section" class="hidden">
-            <h3 id="other-seller-products-title"></h3>
-            <div id="other-seller-product-list" class="product-grid">
-                <!-- Productos de otro vendedor se cargarán aquí -->
-            </div>
-        </section>
-
-        <!-- Sección para MIS productos (solo visible para el vendedor logueado) -->
-        <section id="my-products-section" class="hidden">
-            <h3>Mis Productos</h3>
-            <div id="my-product-list" class="product-grid">
-                <!-- Mis productos se cargarán aquí -->
-            </div>
-        </section>
-
+       
         <section id="seller-details-section">
-            <h2 id="seller-email-display"></h2>
-            <p id="seller-phone-display"></p>
-            <div id="seller-average-rating">
-                <!-- La calificación promedio se cargará aquí -->
+            <div class="seller-header">
+                <img id="seller-profile-picture" src="https://via.placeholder.com/150" alt="Foto de Perfil del Vendedor" class="profile-picture">
+                <div>
+                    <!-- <h2 id="seller-store-name">Nombre de la Tienda</h2> -->
+                    <p id="seller-username"></p>
+
+                </div>
+            </div>
+            <p id="seller-store-description"></p>
+            <div class="seller-stats">
+                <div class="stat-item">
+                    <h4>Pedidos</h4>
+                    <p id="orders-count">0</p>
+                </div>
+                <div class="stat-item">
+                    <h4>Productos</h4>
+                    <p id="products-count">0</p>
+                </div>
+            </div>
+            <div class="seller-contact-info">
+                <h3>Contacto</h3>
+                <p><i class="fas fa-phone"></i> Teléfono: <span id="seller-phone"></span></p>
+                <p><i class="fab fa-whatsapp"></i> WhatsApp: <span id="seller-whatsapp"></span></p>
+                <p><i class="fab fa-facebook"></i> Facebook: <span id="seller-facebook"></span></p>
+                <p><i class="fab fa-instagram"></i> Instagram: <span id="seller-instagram"></span></p>
             </div>
             <button id="edit-seller-profile-btn" class="hidden">Editar Perfil</button>
         </section>
 
-        <section id="rate-seller-section" class="hidden">
-            <h3>Califica a este vendedor</h3>
-            <div class="rating-stars" id="rating-stars-container">
-                <!-- Las estrellas para calificar se cargarán aquí dinámicamente -->
-            </div>
-            <p id="rating-feedback"></p>
+        <section id="calificaciones-section">
+            <h2>Mis Calificaciones</h2>
+            <div id="my-ratings"></div>
         </section>
+
+        <section id="detailed-ratings-section">
+            <h2>Calificaciones Detalladas</h2>
+            <div id="detailed-ratings-list"></div>
+        </section>
+
+
 
         <!-- Modal de Edición de Producto -->
         <div id="edit-product-modal" class="modal">
@@ -85,12 +96,45 @@
                 <h2>Editar Perfil de Vendedor</h2>
                 <form id="edit-seller-profile-form">
                     <div class="form-group">
+                        <label for="edit-seller-store-name">Nombre de la Tienda:</label>
+                        <input type="text" id="edit-seller-store-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-seller-store-description">Descripción de la Tienda:</label>
+                        <textarea id="edit-seller-store-description"></textarea>
+                    </div>
+                    <div class="form-group">
                         <label for="edit-seller-username">Nombre de Usuario:</label>
                         <input type="text" id="edit-seller-username" required>
                     </div>
                     <div class="form-group">
                         <label for="edit-seller-phone">Teléfono:</label>
                         <input type="tel" id="edit-seller-phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-seller-whatsapp">WhatsApp:</label>
+                        <input type="tel" id="edit-seller-whatsapp">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-seller-facebook">Facebook:</label>
+                        <input type="url" id="edit-seller-facebook">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-seller-instagram">Instagram:</label>
+                        <input type="url" id="edit-seller-instagram">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-image-upload">Foto de Perfil:</label>
+                        <div class="image-upload-wrapper">
+                            <input type="file" id="profile-image-upload" class="image-upload-input" accept="image/*">
+                            <label for="profile-image-upload" class="image-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Arrastra y suelta tu imagen o haz clic aquí</span>
+                            </label>
+                            <p id="profile-image-upload-status"></p>
+                        </div>
+                        <input type="hidden" id="profile-image-url">
+                        <img id="current-profile-picture" src="https://via.placeholder.com/100" alt="Foto de Perfil Actual" class="current-profile-picture-preview">
                     </div>
                     <button type="submit">Guardar Cambios</button>
                 </form>
@@ -111,5 +155,6 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/perfil-vendedor.js"></script>
     <script src="js/app.js"></script>
+    
 </body>
 </html>

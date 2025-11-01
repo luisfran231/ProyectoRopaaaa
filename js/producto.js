@@ -88,36 +88,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function openDeliveryModal() {
-        deliveryOptionsContainer.innerHTML = ''; // Limpiar opciones
+        const deliveryLocationSelect = document.getElementById('delivery-location');
+        deliveryLocationSelect.innerHTML = '<option value="">Selecciona una dirección</option>'; // Limpiar opciones
 
-        // Opciones de entrega
         const specificLocations = [
             'Punto de entrega 1 (Centro de iguala cerca del banco BBVA)', // Placeholder
             'Punto de entrega 2 (Centro de iguala cerca del ayuntamiento)', // Placeholder
             'Punto de entrega 3 (Centro de iguala cerca del centro joyero)'  // Placeholder
         ];
 
-        // Añadir la dirección del cliente si existe
         if (currentUser.address) {
             specificLocations.push(`Mi dirección: ${currentUser.address}`);
         }
 
-        specificLocations.forEach((location, index) => {
-            const optionEl = document.createElement('div');
-            optionEl.innerHTML = `
-                <input type="radio" id="loc${index}" name="delivery-location" value="${location}" ${index === 0 ? 'checked' : ''}>
-                <label for="loc${index}">${location}</label>
-            `;
-            deliveryOptionsContainer.appendChild(optionEl);
+        specificLocations.forEach(location => {
+            const optionEl = document.createElement('option');
+            optionEl.value = location;
+            optionEl.textContent = location;
+            deliveryLocationSelect.appendChild(optionEl);
         });
 
         deliveryModal.style.display = 'flex';
     }
 
-    // --- CONFIRMAR Y REALIZAR PEDIDO ---
     confirmOrderBtn.addEventListener('click', () => {
-        const selectedLocation = document.querySelector('input[name="delivery-location"]:checked').value;
-        if (selectedLocation) {
+        const selectedLocation = document.getElementById('delivery-location').value;
+        if (selectedLocation && selectedLocation !== '') {
             placeOrder(selectedLocation);
         } else {
             alert('Por favor, selecciona un lugar de entrega.');

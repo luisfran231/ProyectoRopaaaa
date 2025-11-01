@@ -1,133 +1,215 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Bz Online</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - BZ Online</title>
+  <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img">
-            <h1>BZ Online</h1>
-        </div>
-        <button class="hamburger-menu" id="hamburger-menu">
-        <span></span>
-        <span></span>
-        <span></span>
+  <header>
+    <div class="logo-container">
+      <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img"/>
+      <h1>BZ Online</h1>
+    </div>
+
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
     </button>
+
     <nav class="user-info" id="main-nav">
-            <div id="notification-bell" class="notification-bell">
-                <i class="bell-icon">&#128276;</i>
-                <span id="notification-count" class="notification-count" style="display:none;">0</span>
-            </div>
-            <p id="user-email"></p>
-            <a href="catalogo.html" id="view-catalog-link">Ver Catálogo</a>
-            <button id="logout-button">Cerrar Sesión</button>
-        </nav>
-    </header>
-    <main class="container">
+      <div id="notification-bell" class="notification-bell" title="Notificaciones">
+        <i class="bell-icon">&#128276;</i>
+        <span id="notification-count" class="notification-count" style="display:none;">0</span>
+      </div>
+
+      <!-- chip de perfil (lo rellena JS) -->
+      <a id="profile-chip" class="profile-chip" href="#" style="display:none;">
+        <img class="chip-avatar" src="" alt="Perfil"/>
+        <span class="chip-name"></span>
+      </a>
+
+      <p id="user-email"></p>
+      <a href="catalogo.html" id="view-catalog-link">Ver Catálogo</a>
+      <button id="logout-button" type="button">Cerrar Sesión</button>
+    </nav>
+  </header>
+
+  <main class="container">
     <div class="tabs-container">
-        <button class="tabs-toggle" id="tabs-toggle">Menú de Vendedor</button>
-        <div class="tabs" id="tabs-nav">
-            <button class="tab-link" data-tab="pedidos">Pedidos</button>
-            <button class="tab-link active" data-tab="productos">Mis Productos</button>
-            <button class="tab-link" data-tab="nuevo-producto">Añadir Producto</button>
-            <button class="tab-link" data-tab="calificaciones">Calificaciones</button>
+      <button class="tabs-toggle" id="tabs-toggle" type="button">Menú de Vendedor</button>
+
+      <div class="tabs" id="tabs-nav" role="tablist" aria-label="Secciones">
+        <button class="tab-link" data-tab="pedidos" role="tab" aria-controls="pedidos">Pedidos</button>
+        <button class="tab-link active" data-tab="productos" role="tab" aria-controls="productos" aria-selected="true">Mis Productos</button>
+        <button class="tab-link" data-tab="nuevo-producto" role="tab" aria-controls="nuevo-producto">Añadir Producto</button>
+      </div>
+
+      <!-- Pedidos -->
+      <div id="pedidos" class="tab-content" role="tabpanel" aria-labelledby="pedidos">
+        <h2>Pedidos Recibidos</h2>
+        <div id="orders-list"></div>
+      </div>
+
+      <!-- Mis productos (carrusel) -->
+      <div id="productos" class="tab-content active" role="tabpanel" aria-labelledby="productos">
+        <h2>Mis Productos</h2>
+
+        <div class="carousel" id="my-products-carousel">
+          <button class="carousel-btn prev" type="button" aria-label="Anterior">‹</button>
+
+          <div class="carousel-viewport" aria-roledescription="carrusel">
+            <!-- admin.js inyecta aquí las tarjetas -->
+            <div id="my-products-list" class="carousel-track product-grid"></div>
+          </div>
+
+          <button class="carousel-btn next" type="button" aria-label="Siguiente">›</button>
         </div>
 
-        <div id="pedidos" class="tab-content">
-            <h2>Pedidos Recibidos</h2>
-            <div id="orders-list"></div>
-        </div>
+        <div class="carousel-dots" id="my-products-dots" aria-label="Paginación del carrusel"></div>
+      </div>
 
-        <div id="productos" class="tab-content active">
-            <h2>Mis Productos</h2>
-            <div id="my-products-list"></div>
-        </div>
+      <!-- Añadir producto -->
+      <div id="nuevo-producto" class="tab-content" role="tabpanel" aria-labelledby="nuevo-producto">
+        <h2>Añadir Nuevo Producto</h2>
+        <form id="add-product-form" class="modern-form" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="product-name">Nombre del Producto</label>
+              <input type="text" id="product-name" required/>
+            </div>
+            <div class="form-group">
+              <label for="product-price">Precio (MXN)</label>
+              <input type="number" id="product-price" step="0.01" required/>
+            </div>
+          </div>
 
-        <div id="nuevo-producto" class="tab-content">
-            <h2>Añadir Nuevo Producto</h2>
-            <form id="add-product-form" class="modern-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="product-name">Nombre del Producto</label>
-                        <input type="text" id="product-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="product-price">Precio (MXN)</label>
-                        <input type="number" id="product-price" step="0.01" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="product-desc">Descripción</label>
-                    <textarea id="product-desc" rows="4" required></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="product-size">Talla</label>
-                        <select id="product-size" required>
-                            <option value="">Selecciona una talla</option>
-                            <option value="CH">CH</option>
-                            <option value="M">M</option>
-                            <option value="G">G</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="product-gender">Género</label>
-                        <select id="product-gender" required>
-                            <option value="">Selecciona el género</option>
-                            <option value="Dama">Dama</option>
-                            <option value="Caballero">Caballero</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="image-upload">Imagen del Producto</label>
-                    <div class="image-upload-wrapper">
-                        <input type="file" id="image-upload" accept="image/*" class="image-upload-input">
-                        <label for="image-upload" class="image-upload-label">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <span>Seleccionar archivo</span>
-                        </label>
-                        <small id="image-upload-status"></small>
-                    </div>
-                    <input type="hidden" id="product-image" name="product-image" required>
-                </div>
-                <button type="submit" class="submit-btn">Agregar Producto</button>
-            </form>
-        </div>
+          <div class="form-group">
+            <label for="product-desc">Descripción</label>
+            <textarea id="product-desc" rows="4" required></textarea>
+          </div>
 
-        <div id="calificaciones" class="tab-content">
-            <h2>Mis Calificaciones</h2>
-            <div id="my-ratings"></div>
-        </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="product-size">Talla</label>
+              <select id="product-size" class="modern-select" required>
+                <option value="">Selecciona una talla</option>
+                <option value="CH">CH</option>
+                <option value="M">M</option>
+                <option value="G">G</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="product-gender">Género</label>
+              <select id="product-gender" class="modern-select" required>
+                <option value="">Selecciona el género</option>
+                <option value="Dama">Dama</option>
+                <option value="Caballero">Caballero</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="image-upload">Imagen del Producto</label>
+            <div class="image-upload-wrapper">
+              <input type="file" id="image-upload" accept="image/*" class="image-upload-input"/>
+              <label for="image-upload" class="image-upload-label">
+                <span>Seleccionar archivo</span>
+              </label>
+              <small id="image-upload-status"></small>
+            </div>
+            <input type="hidden" id="product-image" name="product-image" required/>
+          </div>
+
+          <button type="submit" class="submit-btn">Agregar Producto</button>
+        </form>
+      </div>
     </div>
-    </main>
+  </main>
 
-    <!-- Modal para Detalles del Pedido -->
-    <div id="order-details-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Detalles del Pedido</h2>
-            <div id="modal-order-details"></div>
-        </div>
+  <!-- Modal Detalles Pedido -->
+  <div id="order-details-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="order-details-title">
+    <div class="modal-content">
+      <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+      <h2 id="order-details-title">Detalles del Pedido</h2>
+      <div id="modal-order-details"></div>
     </div>
+  </div>
 
-    <footer>
-        <p>&copy; 2025 Tu Tienda de Ropa</p>
-    </footer>
+  <!-- Modal Editar Producto -->
+  <div id="edit-product-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-product-title">
+    <div class="modal-content">
+      <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+      <h2 id="edit-product-title">Editar Producto</h2>
 
-    <!-- Scripts de Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+      <form id="edit-product-form" class="modern-form" novalidate>
+        <input type="hidden" id="edit-product-id"/>
 
-    <!-- Mis scripts -->
-    <script src="js/firebase-config.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/app.js"></script>
+        <div class="form-group">
+          <label for="edit-product-name">Nombre del Producto</label>
+          <input type="text" id="edit-product-name" required/>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-product-price">Precio (MXN)</label>
+          <input type="number" id="edit-product-price" step="0.01" required/>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-product-desc">Descripción</label>
+          <textarea id="edit-product-desc" rows="4" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-product-size">Talla</label>
+            <select id="edit-product-size" class="modern-select" required>
+              <option value="">Selecciona una talla</option>
+              <option value="CH">CH</option>
+              <option value="M">M</option>
+              <option value="G">G</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-product-gender">Género</label>
+            <select id="edit-product-gender" class="modern-select" required>
+              <option value="">Selecciona el género</option>
+              <option value="Dama">Dama</option>
+              <option value="Caballero">Caballero</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-image-upload">Imagen del Producto</label>
+          <div class="image-upload-wrapper">
+            <input type="file" id="edit-image-upload" accept="image/*" class="image-upload-input"/>
+            <label for="edit-image-upload" class="image-upload-label">
+              <span>Seleccionar archivo</span>
+            </label>
+            <small id="edit-image-upload-status"></small>
+          </div>
+          <input type="hidden" id="edit-product-image"/>
+        </div>
+
+        <button type="submit" class="submit-btn">Guardar Cambios</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Tu Tienda de Ropa</p>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+  <!-- App -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
