@@ -101,15 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const udata = udoc.data();
 
     currentUser = user;
-    if (userEmailEl) userEmailEl.textContent = `${(udata.role||'Usuario')[0].toUpperCase()+(udata.role||'usuario').slice(1)}: ${udata.username}`;
 
-    // Populate and display profile chip
-    if (profileChip && chipAvatar && chipName) {
-      const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(udata.username||'Vendedor')}&background=2c2c2c&color=e0e0e0`;
-      chipAvatar.src = udata.photoUrl || fallbackAvatar;
-      chipName.textContent = udata.username;
-      profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
-      profileChip.style.display = 'inline-flex';
+    if (udata.role === 'cliente') {
+        if (userEmailEl) userEmailEl.style.display = 'none';
+        if (profileChip) profileChip.style.display = 'none';
+    } else if (udata.role === 'vendedor') {
+        if (userEmailEl) userEmailEl.textContent = `${(udata.role||'Usuario')[0].toUpperCase()+(udata.role||'usuario').slice(1)}: ${udata.username}`;
+        // Populate and display profile chip for sellers
+        if (profileChip && chipAvatar && chipName) {
+          const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(udata.username||'Vendedor')}&background=2c2c2c&color=e0e0e0`;
+          chipAvatar.src = udata.photoUrl || fallbackAvatar;
+          chipName.textContent = udata.username;
+          profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+          profileChip.style.display = 'inline-flex';
+        }
     }
 
     const params = new URLSearchParams(location.search);

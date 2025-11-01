@@ -86,18 +86,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="perfil-vendedor.html?id=${product.sellerId}" class="seller-link">
                         Vendido por: ${product.sellerUsername}
                     </a>
+                    <div class="product-actions">
                     <button id="buy-btn">Comprar</button>
+                    <button id="add-to-cart-btn">Añadir al Carrito</button>
+                </div>
                 </div>
             </section>
         `;
     }
 
     // --- LÓGICA DEL MODAL DE ENTREGA ---
+    // --- LÓGICA DEL MODAL DE ENTREGA Y CARRITO ---
     productDetailContainer.addEventListener('click', e => {
         if (e.target.id === 'buy-btn') {
             openDeliveryModal();
         }
+        if (e.target.id === 'add-to-cart-btn') {
+            addToCart(currentProduct.id);
+        }
     });
+
+    function getCart() {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+    }
+
+    function saveCart(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function addToCart(productId) {
+        let cart = getCart();
+        if (!cart.includes(productId)) {
+            cart.push(productId);
+            saveCart(cart);
+            alert('¡Producto añadido al carrito!');
+        } else {
+            alert('Este producto ya está en tu carrito.');
+        }
+    }
 
     closeModalButton.addEventListener('click', () => {
         deliveryModal.style.display = 'none';

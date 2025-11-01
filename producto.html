@@ -19,6 +19,12 @@
         </button>
         <nav class="user-info" id="main-nav">
             <p id="user-display"></p>
+            <div class="icon-container">
+              <div id="cart-icon" class="cart-icon-container">
+                <i class="cart-icon">&#128722;</i>
+                <span id="cart-count" class="cart-count" style="display:none;">0</span>
+              </div>
+            </div>
             <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
             <button onclick="history.back()" class="back-button">&larr; Volver a la anterior</button>
             <button id="logout-button">Cerrar Sesión</button>
@@ -63,6 +69,16 @@
             </div>
         </div>
             <button id="confirm-order-btn">Confirmar Pedido</button>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-modal-content">
+            <span class="close-cart-btn">&times;</span>
+            <h2>Mi Carrito</h2>
+            <div id="cart-items-container" class="cart-items-container">
+                <!-- Cart items will be loaded here -->
+            </div>
         </div>
     </div>
 

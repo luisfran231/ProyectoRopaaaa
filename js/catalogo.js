@@ -165,14 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
             notificationDropdown.style.display = 'none';
         } else {
             notificationDropdown.style.display = 'block';
-            // Mark all current notifications as read
-            const snapshot = await db.collection('notifications')
-                .where('userId', '==', currentUser.uid)
-                .where('read', '==', false)
-                .get();
-            snapshot.forEach(doc => {
-                db.collection('notifications').doc(doc.id).update({ read: true });
-            });
             loadNotifications(currentUser.uid); // Reload to update count
         }
     });
@@ -403,3 +395,4 @@ async function toDataURL(url) {
 
 
 });
+
