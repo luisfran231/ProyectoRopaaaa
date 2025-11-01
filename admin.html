@@ -29,7 +29,6 @@
         <span class="chip-name"></span>
       </a>
 
-      <p id="user-email"></p>
       <a href="catalogo.html" id="view-catalog-link">Ver Catálogo</a>
       <button id="logout-button" type="button">Cerrar Sesión</button>
     </nav>
@@ -47,14 +46,14 @@
 
       <!-- Pedidos -->
       <div id="pedidos" class="tab-content" role="tabpanel" aria-labelledby="pedidos">
-        <h2>Pedidos Recibidos</h2>
+        <div class="pending-orders-header">
+        <h2>Pedidos Recibidos <span id="pending-orders-count" class="notification-count">0</span></h2>
+        </div>
         <div id="orders-list"></div>
       </div>
 
       <!-- Mis productos (carrusel) -->
       <div id="productos" class="tab-content active" role="tabpanel" aria-labelledby="productos">
-        <h2>Mis Productos</h2>
-
         <div class="carousel" id="my-products-carousel">
           <button class="carousel-btn prev" type="button" aria-label="Anterior">‹</button>
 
@@ -71,7 +70,6 @@
 
       <!-- Añadir producto -->
       <div id="nuevo-producto" class="tab-content" role="tabpanel" aria-labelledby="nuevo-producto">
-        <h2>Añadir Nuevo Producto</h2>
         <form id="add-product-form" class="modern-form" novalidate>
           <div class="form-row">
             <div class="form-group">

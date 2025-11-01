@@ -20,6 +20,11 @@
         </button>
         <nav class="user-info" id="main-nav">
             <p id="user-email"></p>
+            <!-- chip de perfil (lo rellena JS) -->
+            <a id="profile-chip" class="profile-chip" href="#">
+              <img class="chip-avatar" src="" alt="Perfil"/>
+              <span class="chip-name"></span>
+            </a>
             <button onclick="history.back()" class="back-button">&larr; Volver a la anterior</button>
             <button id="logout-button">Cerrar Sesión</button>
         </nav>
@@ -36,7 +41,6 @@
 
                 </div>
             </div>
-            <p id="seller-store-description"></p>
             <div class="seller-stats">
                 <div class="stat-item">
                     <h4>Pedidos</h4>
@@ -67,6 +71,25 @@
             <div id="detailed-ratings-list"></div>
         </section>
 
+        <section id="rate-seller-section" class="hidden">
+            <h2>Calificar a este Vendedor</h2>
+            <form id="rating-form">
+                <div class="rating-stars">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="rating-value" name="rating-value" required>
+                <div class="form-group">
+                    <label for="rating-comment">Comentario:</label>
+                    <textarea id="rating-comment" rows="4"></textarea>
+                </div>
+                <button type="submit">Enviar Calificación</button>
+            </form>
+        </section>
+
 
 
         <!-- Modal de Edición de Producto -->
@@ -95,14 +118,6 @@
                 <span class="close-button-seller-profile">&times;</span>
                 <h2>Editar Perfil de Vendedor</h2>
                 <form id="edit-seller-profile-form">
-                    <div class="form-group">
-                        <label for="edit-seller-store-name">Nombre de la Tienda:</label>
-                        <input type="text" id="edit-seller-store-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-seller-store-description">Descripción de la Tienda:</label>
-                        <textarea id="edit-seller-store-description"></textarea>
-                    </div>
                     <div class="form-group">
                         <label for="edit-seller-username">Nombre de Usuario:</label>
                         <input type="text" id="edit-seller-username" required>

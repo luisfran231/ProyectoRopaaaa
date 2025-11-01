@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const db = firebase.firestore();
 
   // --- ELEMENTOS DE LA UI ---
-  const userEmailEl = document.getElementById('user-email');
   const logoutButton = document.getElementById('logout-button');
   const viewCatalogLink = document.getElementById('view-catalog-link');
   const addProductForm = document.getElementById('add-product-form');
@@ -15,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const imageUploadInput = document.getElementById('image-upload');
   const productImageHiddenInput = document.getElementById('product-image');
   const imageUploadStatus = document.getElementById('image-upload-status');
+  const pendingOrdersCount = document.getElementById('pending-orders-count');
 
   // Modales
   const orderDetailsModal = document.getElementById('order-details-modal');
@@ -133,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (doc.exists && doc.data().role === 'vendedor') {
           const userData = doc.data();
           currentUser = { ...user, ...userData };
-          userEmailEl.textContent = `Vendedor: ${currentUser.username}`;
           viewCatalogLink.style.display = 'none'; // Ocultar "Ver Catálogo"
 
          // ... dentro de onAuthStateChanged, cuando el role === 'vendedor'
@@ -152,6 +151,7 @@ userNav.insertBefore(profileChip, logoutButton);
           loadRatings(currentUser.uid);
           loadOrders(currentUser.uid);
           loadNotifications(currentUser.uid);
+          loadPendingOrdersCount(currentUser.uid);
         } else {
           window.location.href = 'catalogo.html';
         }
@@ -534,6 +534,18 @@ userNav.insertBefore(profileChip, logoutButton);
         console.error("Error al rechazar pedido: ", error);
         alert('Hubo un error al rechazar el pedido.');
       });
+  }
+
+  function loadPendingOrdersCount(sellerId) {
+    db.collection('orders').where('sellerId', '==', sellerId).where('status', '==', 'pendiente').onSnapshot(snapshot => {
+        const count = snapshot.size;
+        if (count > 0) {
+            pendingOrdersCount.textContent = count;
+            pendingOrdersCount.style.display = 'inline-block';
+        } else {
+            pendingOrdersCount.style.display = 'none';
+        }
+    });
   }
 
   // --- NOTIFICACIONES ---

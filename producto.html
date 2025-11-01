@@ -34,11 +34,23 @@
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2>Elige el lugar de entrega</h2>
-            <div class="form-group">
-                <label for="delivery-location">Dirección de Entrega:</label>
-                <select id="delivery-location" name="delivery-location" class="modern-select" required>
-                    <option value="">Selecciona una dirección</option>
-                </select>
+            <div class="delivery-options-container">
+                <div class="radio-group">
+                    <input type="radio" id="delivery-point-option" name="delivery-choice" value="point" checked>
+                    <label for="delivery-point-option">Punto de entrega</label>
+                    <input type="radio" id="personal-address-option" name="delivery-choice" value="address">
+                    <label for="personal-address-option">Dirección personal</label>
+                </div>
+                <div id="delivery-point-selection" class="form-group">
+                    <label for="delivery-location">Punto de Entrega:</label>
+                    <select id="delivery-location" name="delivery-location" class="modern-select" required>
+                        <option value="">Selecciona un punto de entrega</option>
+                    </select>
+                </div>
+                <div id="personal-address-selection" class="form-group hidden">
+                    <label for="personal-address">Tu Dirección:</label>
+                    <input type="text" id="personal-address" name="personal-address" class="modern-input">
+                </div>
             </div>
             <div class="delivery-time-grid">
             <div class="form-group">

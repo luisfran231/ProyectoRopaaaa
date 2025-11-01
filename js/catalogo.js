@@ -3,14 +3,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = firebase.firestore();
 
     // Elementos de la UI
-    const userEmailEl = document.getElementById('user-email');
     const logoutButton = document.getElementById('logout-button');
     const productList = document.getElementById('product-list');
+    const paginationContainer = document.getElementById('pagination-container');
+    const prevPageBtn = document.getElementById('prev-page-btn');
+    const nextPageBtn = document.getElementById('next-page-btn');
+    const pageInfo = document.getElementById('page-info');
+
+    let allProducts = [];
+    let currentPage = 1;
+    const productsPerPage = 6;
     const notificationBell = document.getElementById('notification-bell');
     const notificationCount = document.getElementById('notification-count');
     const notificationDropdown = document.getElementById('notification-dropdown');
+    const genderFilter = document.getElementById('gender-filter');
+    genderFilter.value = 'all'; // Ensure 'Todos' is selected by default
 
     let currentUser;
+
+    // --- Event listener for filter ---
+    genderFilter.addEventListener('change', () => {
+        loadProducts(genderFilter.value);
+    });
 
     // --- INICIALIZACIÓN Y AUTH GUARD ---
     auth.onAuthStateChanged(user => {
@@ -19,21 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (doc.exists) {
                     const userData = doc.data();
                     currentUser = { ...user, ...userData };
-                    userEmailEl.textContent = `${currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}: ${currentUser.username}`;
-
-                    const profileLink = document.createElement('a');
-                    profileLink.textContent = 'Mi Perfil';
-                    if (currentUser.role === 'cliente') {
-                        profileLink.href = `perfil-cliente.html?id=${currentUser.uid}`;
-                    } else if (currentUser.role === 'vendedor') {
-                        profileLink.href = `perfil-vendedor.html?id=${currentUser.uid}`;
-                    }
 
                     const userNav = document.getElementById('main-nav');
                     const logoutButton = document.getElementById('logout-button');
-                    userNav.insertBefore(profileLink, logoutButton);
+                    if (currentUser.role === 'vendedor') {
+                        const profileLink = document.createElement('a');
+                        profileLink.textContent = 'Mi Perfil';
+                        profileLink.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+                        userNav.insertBefore(profileLink, logoutButton);
+                    }
                     if (currentUser.role === 'cliente') {
-                        loadProducts();
+                        loadProducts(genderFilter.value); // Load products with the default filter
                         loadNotifications(currentUser.uid);
                     } else {
                         window.location.href = 'admin.html';
@@ -52,40 +62,85 @@ document.addEventListener('DOMContentLoaded', () => {
         auth.signOut().then(() => window.location.href = 'index.html');
     });
 
-    function loadProducts() {
-        db.collection('products').onSnapshot(snapshot => {
-            productList.innerHTML = '';
-            if (snapshot.empty) {
-                productList.innerHTML = '<p>No hay productos disponibles.</p>';
-                return;
-            }
-            snapshot.forEach(async doc => {
-                const product = doc.data();
-                const sellerRating = await getSellerRating(product.sellerId);
+    function loadProducts(gender = 'all') {
+        let query = db.collection('products');
+        if (gender !== 'all') {
+            query = query.where('gender', '==', gender);
+        }
 
-                const productEl = document.createElement('div');
-                productEl.className = 'product-card';
-                productEl.innerHTML = `
-                    <a href="producto.html?id=${doc.id}" class="product-card-link">
-                        <img src="${product.imageUrl}" alt="${product.name}">
-                        <div class="product-card-content">
-                            <h3>${product.name}</h3>
-                            <p class="price">MXN $${product.price.toFixed(2)}</p>
-                            <div class="seller-info">
-                                <p class="seller">Vendido por: <a href="perfil-vendedor.html?id=${product.sellerId}">${product.sellerUsername}</a></p>
-                                <div class="seller-rating">
-                                    ${sellerRating.average} ★ (${sellerRating.count} calificaciones)
-                                </div>
-                            </div>
-                            ${product.isSold ? '<span class="product-status sold">VENDIDO</span>' : '<span class="product-status available">DISPONIBLE</span>'}
-                        </div>
-                    </a>
-                    <a href="producto.html?id=${doc.id}" class="details-btn">Ver Detalles</a>
-                `;
-                productList.appendChild(productEl);
+        query.onSnapshot(snapshot => {
+            allProducts = [];
+            snapshot.forEach(doc => {
+                allProducts.push({ id: doc.id, ...doc.data() });
             });
+            currentPage = 1;
+            renderPage();
         });
     }
+
+    function renderPage() {
+        productList.innerHTML = '';
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const productsToRender = allProducts.slice(startIndex, endIndex);
+
+        if (productsToRender.length === 0) {
+            productList.innerHTML = '<p>No hay productos disponibles.</p>';
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        paginationContainer.style.display = 'flex';
+        productsToRender.forEach(async product => {
+            const sellerRating = await getSellerRating(product.sellerId);
+
+            const productEl = document.createElement('div');
+            productEl.className = 'product-card';
+            productEl.innerHTML = `
+                <a href="producto.html?id=${product.id}" class="product-card-link">
+                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <div class="product-card-content">
+                        <h3>${product.name}</h3>
+                        <p class="price">MXN $${product.price.toFixed(2)}</p>
+                        <div class="seller-info">
+                            <p class="seller">Vendido por: <a href="perfil-vendedor.html?id=${product.sellerId}">${product.sellerUsername}</a></p>
+                            <div class="seller-rating">
+                                ${sellerRating.average} ★ (${sellerRating.count} calificaciones)
+                            </div>
+                        </div>
+                        ${product.isSold ? '<span class="product-status sold">VENDIDO</span>' : '<span class="product-status available">DISPONIBLE</span>'}
+                    </div>
+                </a>
+                <a href="producto.html?id=${product.id}" class="details-btn">Ver Detalles</a>
+            `;
+            productList.appendChild(productEl);
+        });
+
+        updatePagination();
+    }
+
+    function updatePagination() {
+        const totalPages = Math.ceil(allProducts.length / productsPerPage);
+        pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages;
+    }
+
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage();
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(allProducts.length / productsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderPage();
+        }
+    });
 
     // Función para obtener el rating de un vendedor
     async function getSellerRating(sellerId) {
@@ -104,9 +159,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- NOTIFICACIONES ---
-    notificationBell.addEventListener('click', () => {
+    notificationBell.addEventListener('click', async () => {
         console.log('Bell clicked');
-        notificationDropdown.style.display = notificationDropdown.style.display === 'block' ? 'none' : 'block';
+        if (notificationDropdown.style.display === 'block') {
+            notificationDropdown.style.display = 'none';
+        } else {
+            notificationDropdown.style.display = 'block';
+            // Mark all current notifications as read
+            const snapshot = await db.collection('notifications')
+                .where('userId', '==', currentUser.uid)
+                .where('read', '==', false)
+                .get();
+            snapshot.forEach(doc => {
+                db.collection('notifications').doc(doc.id).update({ read: true });
+            });
+            loadNotifications(currentUser.uid); // Reload to update count
+        }
     });
 
     function loadNotifications(userId) {
@@ -123,10 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const notification = doc.data();
                     const notificationEl = document.createElement('div');
                     notificationEl.className = 'notification-item';
-                    notificationEl.innerHTML = `
-                        <p>${notification.message}</p>
-                        <button class="download-pdf-btn" data-order-id="${notification.orderId}">Descargar PDF</button>
-                    `;
+                    let notificationHTML = `<p>${notification.message}</p>`;
+                    if (!notification.message.includes('rechazó')) {
+                        notificationHTML += `<button class="download-pdf-btn" data-order-id="${notification.orderId}">Descargar PDF</button>`;
+                    }
+                    notificationEl.innerHTML = notificationHTML;
                     notificationDropdown.appendChild(notificationEl);
                 });
             } else {

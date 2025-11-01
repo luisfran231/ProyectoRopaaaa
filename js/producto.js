@@ -10,9 +10,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalButton = document.querySelector('.close-button');
     const deliveryOptionsContainer = document.getElementById('delivery-options');
     const confirmOrderBtn = document.getElementById('confirm-order-btn');
+    const deliveryPointOption = document.getElementById('delivery-point-option');
+    const personalAddressOption = document.getElementById('personal-address-option');
+    const deliveryPointSelection = document.getElementById('delivery-point-selection');
+    const personalAddressSelection = document.getElementById('personal-address-selection');
+    const personalAddress = document.getElementById('personal-address');
 
     let currentUser;
     let currentProduct;
+
+    // --- Event listeners for delivery options ---
+    deliveryPointOption.addEventListener('change', () => {
+        deliveryPointSelection.classList.remove('hidden');
+        personalAddressSelection.classList.add('hidden');
+    });
+
+    personalAddressOption.addEventListener('change', () => {
+        personalAddressSelection.classList.remove('hidden');
+        deliveryPointSelection.classList.add('hidden');
+    });
 
     // --- INICIALIZACIÓN Y AUTH GUARD ---
     auth.onAuthStateChanged(user => {
@@ -89,17 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openDeliveryModal() {
         const deliveryLocationSelect = document.getElementById('delivery-location');
-        deliveryLocationSelect.innerHTML = '<option value="">Selecciona una dirección</option>'; // Limpiar opciones
+        deliveryLocationSelect.innerHTML = '<option value="">Selecciona un punto de entrega</option>'; // Limpiar opciones
 
         const specificLocations = [
-            'Punto de entrega 1 (Centro de iguala cerca del banco BBVA)', // Placeholder
-            'Punto de entrega 2 (Centro de iguala cerca del ayuntamiento)', // Placeholder
-            'Punto de entrega 3 (Centro de iguala cerca del centro joyero)'  // Placeholder
+            'Punto de entrega 1 (Centro de iguala cerca del banco BBVA)',
+            'Punto de entrega 2 (Centro de iguala cerca del ayuntamiento)',
+            'Punto de entrega 3 (Centro de iguala cerca del centro joyero)'
         ];
-
-        if (currentUser.address) {
-            specificLocations.push(`Mi dirección: ${currentUser.address}`);
-        }
 
         specificLocations.forEach(location => {
             const optionEl = document.createElement('option');
@@ -108,15 +120,37 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryLocationSelect.appendChild(optionEl);
         });
 
+        // Fetch delivery points from Firestore
+        db.collection('delivery_points').get().then(snapshot => {
+            snapshot.forEach(doc => {
+                const point = doc.data();
+                const optionEl = document.createElement('option');
+                optionEl.value = point.name;
+                optionEl.textContent = point.name;
+                deliveryLocationSelect.appendChild(optionEl);
+            });
+        });
+
+        // Pre-fill personal address
+        if (currentUser.address) {
+            personalAddress.value = currentUser.address;
+        }
+
         deliveryModal.style.display = 'flex';
     }
 
     confirmOrderBtn.addEventListener('click', () => {
-        const selectedLocation = document.getElementById('delivery-location').value;
+        let selectedLocation = '';
+        if (deliveryPointOption.checked) {
+            selectedLocation = document.getElementById('delivery-location').value;
+        } else if (personalAddressOption.checked) {
+            selectedLocation = personalAddress.value;
+        }
+
         if (selectedLocation && selectedLocation !== '') {
             placeOrder(selectedLocation);
         } else {
-            alert('Por favor, selecciona un lugar de entrega.');
+            alert('Por favor, selecciona o ingresa un lugar de entrega.');
         }
     });
 
@@ -138,8 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryLocation: deliveryLocation,
             deliveryDay: deliveryDay, // Nuevo campo
             deliveryTime: deliveryTime, // Nuevo campo
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'pendiente' // Estado inicial
+        }).then((docRef) => {
+            // Notificación para el vendedor
+            db.collection('notifications').add({
+                userId: currentProduct.sellerId,
+                message: `El cliente ${currentUser.username} te hizo un pedido de "${currentProduct.name}"`, 
+                orderId: docRef.id,
+                read: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
             alert(`¡Pedido de "${currentProduct.name}" realizado con éxito!`);
             deliveryModal.style.display = 'none';
             window.location.href = 'catalogo.html'; // Redirigir al catálogo

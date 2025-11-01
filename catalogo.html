@@ -25,15 +25,29 @@
                 <span id="notification-count" class="notification-count" style="display:none;">0</span>
                 <div id="notification-dropdown" class="notification-dropdown" style="display:none;"></div>
             </div>
-            <p id="user-email"></p>
             <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
             <button id="logout-button">Cerrar Sesión</button>
         </nav>
     </header>
     <main class="container">
+        <section id="filters">
+            <h2>Filtrar por Género</h2>
+            <div class="form-group">
+                <select id="gender-filter" class="modern-select">
+                    <option value="all">Todos</option>
+                    <option value="Dama">Dama</option>
+                    <option value="Caballero">Caballero</option>
+                </select>
+            </div>
+        </section>
         <section id="product-list" class="product-grid">
             <!-- Los productos disponibles se cargarán aquí dinámicamente -->
         </section>
+        <div id="pagination-container" class="pagination-container">
+            <button id="prev-page-btn" class="button-style">Anterior</button>
+            <span id="page-info"></span>
+            <button id="next-page-btn" class="button-style">Siguiente</button>
+        </div>
     </main>
     <footer>
         <p>&copy; 2025 Tu Tienda de Ropa</p>

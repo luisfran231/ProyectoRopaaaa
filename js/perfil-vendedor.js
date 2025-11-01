@@ -5,11 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ====== UI base (header) ====== */
   const userEmailEl  = document.getElementById('user-email');
   const logoutButton = document.getElementById('logout-button');
+  const profileChip = document.getElementById('profile-chip');
+  const chipAvatar = profileChip?.querySelector('.chip-avatar');
+  const chipName = profileChip?.querySelector('.chip-name');
 
   /* ====== Perfil visible ====== */
   const sellerProfilePicture   = document.getElementById('seller-profile-picture');
   const sellerUsername         = document.getElementById('seller-username');
-  const sellerStoreDescription = document.getElementById('seller-store-description');
   const ordersCountEl          = document.getElementById('orders-count');
   const productsCountEl        = document.getElementById('products-count');
   const sellerPhoneEl          = document.getElementById('seller-phone');
@@ -20,6 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ====== Calificaciones ====== */
   const myRatingsWrap       = document.getElementById('my-ratings');
   const detailedRatingsList = document.getElementById('detailed-ratings-list');
+  const rateSellerSection   = document.getElementById('rate-seller-section');
+  const ratingForm          = document.getElementById('rating-form');
+  const ratingStars         = ratingForm?.querySelectorAll('.star');
+  const ratingValue         = document.getElementById('rating-value');
+  const ratingComment       = document.getElementById('rating-comment');
 
   /* ====== Editar perfil (modal + form) ====== */
   const editSellerProfileBtn   = document.getElementById('edit-seller-profile-btn');
@@ -27,8 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeBtnSellerProfile  = editSellerProfileModal?.querySelector('.close-button-seller-profile');
 
   const editSellerForm   = document.getElementById('edit-seller-profile-form');
-  const fStoreName       = document.getElementById('edit-seller-store-name');
-  const fStoreDesc       = document.getElementById('edit-seller-store-description');
   const fUsername        = document.getElementById('edit-seller-username');
   const fPhone           = document.getElementById('edit-seller-phone');
   const fWhatsapp        = document.getElementById('edit-seller-whatsapp');
@@ -98,6 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser = user;
     if (userEmailEl) userEmailEl.textContent = `${(udata.role||'Usuario')[0].toUpperCase()+(udata.role||'usuario').slice(1)}: ${udata.username}`;
 
+    // Populate and display profile chip
+    if (profileChip && chipAvatar && chipName) {
+      const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(udata.username||'Vendedor')}&background=2c2c2c&color=e0e0e0`;
+      chipAvatar.src = udata.photoUrl || fallbackAvatar;
+      chipName.textContent = udata.username;
+      profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+      profileChip.style.display = 'inline-flex';
+    }
+
     const params = new URLSearchParams(location.search);
     sellerId = params.get('id') || currentUser.uid; // si no hay id, muestra tu propio perfil
 
@@ -116,10 +130,72 @@ document.addEventListener('DOMContentLoaded', () => {
       editSellerProfileBtn?.classList.remove('hidden');
     } else {
       editSellerProfileBtn?.classList.add('hidden');
+      // Si es un cliente viendo el perfil de otro vendedor, mostrar la sección para calificar
+      if (udata.role === 'cliente') {
+        db.collection('ratings').where('customerId', '==', currentUser.uid).where('sellerId', '==', sellerId).get().then(snapshot => {
+          if (snapshot.empty) {
+            rateSellerSection?.classList.remove('hidden');
+          }
+        });
+      }
     }
   });
 
   logoutButton?.addEventListener('click', () => auth.signOut().then(()=> location.href='index.html'));
+
+  /* ====== Lógica de Calificación ====== */
+  if (ratingStars) {
+    ratingStars.forEach(star => {
+      star.addEventListener('mouseover', () => {
+        const value = star.getAttribute('data-value');
+        ratingStars.forEach(s => {
+          s.classList.toggle('hovered', s.getAttribute('data-value') <= value);
+        });
+      });
+
+      star.addEventListener('mouseout', () => {
+        ratingStars.forEach(s => s.classList.remove('hovered'));
+      });
+
+      star.addEventListener('click', () => {
+        const value = star.getAttribute('data-value');
+        ratingValue.value = value;
+        ratingStars.forEach(s => {
+          s.classList.toggle('filled', s.getAttribute('data-value') <= value);
+        });
+      });
+    });
+  }
+
+  ratingForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser || !sellerId) return;
+
+    const rating = parseInt(ratingValue.value, 10);
+    const comment = ratingComment.value.trim();
+
+    if (!rating) {
+      alert('Por favor, selecciona una calificación de estrellas.');
+      return;
+    }
+
+    try {
+      await db.collection('ratings').add({
+        sellerId: sellerId,
+        customerId: currentUser.uid,
+        customerUsername: currentUser.username || 'Anónimo',
+        stars: rating,
+        comment: comment,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+
+      alert('¡Gracias por tu calificación!');
+      rateSellerSection.classList.add('hidden');
+    } catch (error) {
+      console.error('Error al guardar la calificación:', error);
+      alert('Hubo un error al guardar tu calificación.');
+    }
+  });
 
   /* ====== Carga de doc de vendedor ====== */
   function loadSellerDoc(uid, isOwnProfile) {
@@ -130,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username||'Vendedor')}&background=2c2c2c&color=e0e0e0`;
       sellerProfilePicture.src   = u.photoUrl || fallbackAvatar;
       sellerUsername.textContent = '@' + (u.username || 'vendedor');
-      sellerStoreDescription.textContent = u.storeDescription || '';
 
       sellerPhoneEl.textContent     = u.phone     || '—';
       sellerWhatsappEl.textContent  = u.whatsapp  || '—';
@@ -139,8 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Prefill modal
       if (isOwnProfile) {
-        fStoreName.value = u.storeName || '';
-        fStoreDesc.value = u.storeDescription || '';
         fUsername.value  = u.username || '';
         fPhone.value     = u.phone || '';
         fWhatsapp.value  = u.whatsapp || '';
@@ -197,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.innerHTML = `
           <div class="rating-stars-display">${renderStars(r.stars||0)}</div>
           <p class="rating-comment">${escapeHtml(r.comment||'')}</p>
-          <p class="rating-user">- ${r.customerUsername || 'Cliente'}</p>
+          <p class="rating-user">- ${r.customerUsername || 'Anónimo'}</p>
         `;
         detailedRatingsList.appendChild(item);
       });
@@ -275,8 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
   editSellerForm?.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const updates = {
-      storeName:        fStoreName.value.trim(),
-      storeDescription: fStoreDesc.value.trim(),
       username:         fUsername.value.trim(),
       phone:            fPhone.value.trim(),
       whatsapp:         fWhatsapp.value.trim(),
