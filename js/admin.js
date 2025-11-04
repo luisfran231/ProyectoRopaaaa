@@ -163,8 +163,10 @@ userNav.insertBefore(profileChip, logoutButton);
 
   // --- LOGOUT ---
   logoutButton.addEventListener('click', () => {
-    localStorage.removeItem('cart');
-    auth.signOut().then(() => window.location.href = 'index.html');
+    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+        localStorage.removeItem('cart');
+        auth.signOut().then(() => window.location.href = 'index.html');
+    }
   });
 
   // --- SUBIR IMAGEN A CLOUDINARY ---

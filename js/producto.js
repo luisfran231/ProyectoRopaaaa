@@ -47,7 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     logoutButton.addEventListener('click', () => {
-        auth.signOut().then(() => window.location.href = 'index.html');
+        if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+            auth.signOut().then(() => window.location.href = 'index.html');
+        }
     });
 
     // --- CARGA DEL PRODUCTO ---

@@ -16,7 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const productsCountEl        = document.getElementById('products-count');
   const sellerPhoneEl          = document.getElementById('seller-phone');
   const sellerWhatsappEl       = document.getElementById('seller-whatsapp');
-  const sellerFacebookEl       = document.getElementById('seller-facebook');
+  const sellerWhatsappLink = document.getElementById('seller-whatsapp-link');
+  const sellerFacebookLink = document.getElementById('seller-facebook-link');
+  const sellerInstagramLink = document.getElementById('seller-instagram-link');
   const sellerInstagramEl      = document.getElementById('seller-instagram');
 
   /* ====== Calificaciones ====== */
@@ -43,6 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileStatus    = document.getElementById('profile-image-upload-status');
   const profileUrlHidden = document.getElementById('profile-image-url');
   const currentPreview   = document.getElementById('current-profile-picture');
+
+  /* ====== Editar Calificación (modal + form) ====== */
+  const editRatingModal = document.getElementById('edit-rating-modal');
+  const closeEditRatingBtn = editRatingModal?.querySelector('.close-button');
+  const editRatingForm = document.getElementById('edit-rating-form');
+  const editRatingId = document.getElementById('edit-rating-id');
+  const editRatingStars = editRatingForm?.querySelectorAll('.star');
+  const editRatingValue = document.getElementById('edit-rating-value');
+  const editRatingComment = document.getElementById('edit-rating-comment');
 
 
   const CLOUD_NAME = 'dvdctjltz';
@@ -216,9 +227,27 @@ document.addEventListener('DOMContentLoaded', () => {
       sellerUsername.textContent = '@' + (u.username || 'vendedor');
 
       sellerPhoneEl.textContent     = u.phone     || '—';
-      sellerWhatsappEl.textContent  = u.whatsapp  || '—';
-      sellerFacebookEl.textContent  = u.facebook  || '—';
-      sellerInstagramEl.textContent = u.instagram || '—';
+
+      if (u.whatsapp) {
+        sellerWhatsappLink.href = `https://wa.me/${u.whatsapp.replace(/[^0-9]/g, '')}`;
+        sellerWhatsappEl.textContent = u.whatsapp;
+      } else {
+        sellerWhatsappLink.parentElement.style.display = 'none';
+      }
+
+      if (u.facebook) {
+        sellerFacebookLink.href = u.facebook;
+        sellerFacebookEl.textContent = u.facebook.split('/').filter(Boolean).pop();
+      } else {
+        sellerFacebookLink.parentElement.style.display = 'none';
+      }
+
+      if (u.instagram) {
+        sellerInstagramLink.href = `https://instagram.com/${u.instagram}`;
+        sellerInstagramEl.textContent = u.instagram;
+      } else {
+        sellerInstagramLink.parentElement.style.display = 'none';
+      }
 
       // Prefill modal
       if (isOwnProfile) {
@@ -273,12 +302,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (s.empty){ detailedRatingsList.innerHTML = '<p>Aún no hay calificaciones detalladas.</p>'; return; }
       s.forEach(d=>{
         const r = d.data();
+        const ratingId = d.id;
         const item = document.createElement('div');
         item.className = 'rating-item';
+
+        const createdAt = r.createdAt?.toDate();
+        const dateString = createdAt ? createdAt.toLocaleDateString('es-ES') : '';
+
+        let editButton = '';
+        if (currentUser && currentUser.uid === r.customerId) {
+            editButton = `<button class="edit-rating-btn" data-rating-id="${ratingId}">Editar</button>`;
+        }
+
         item.innerHTML = `
           <div class="rating-stars-display">${renderStars(r.stars||0)}</div>
           <p class="rating-comment">${escapeHtml(r.comment||'')}</p>
-          <p class="rating-user">- ${r.customerUsername}</p>
+          <p class="rating-user">- ${r.customerUsername} el ${dateString}</p>
+          ${editButton}
         `;
         detailedRatingsList.appendChild(item);
       });
@@ -372,4 +412,77 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('No se pudo actualizar el perfil');
     }
   });
+
+  detailedRatingsList.addEventListener('click', e => {
+    if (e.target.classList.contains('edit-rating-btn')) {
+      const ratingId = e.target.dataset.ratingId;
+      openEditRatingModal(ratingId);
+    }
+  });
+
+  function openEditRatingModal(ratingId) {
+    db.collection('ratings').doc(ratingId).get().then(doc => {
+      if (doc.exists) {
+        const rating = doc.data();
+        editRatingId.value = doc.id;
+        editRatingValue.value = rating.stars;
+        editRatingComment.value = rating.comment;
+        
+        editRatingStars.forEach(s => {
+          s.classList.toggle('filled', s.getAttribute('data-value') <= rating.stars);
+        });
+
+        openModal(editRatingModal);
+      }
+    });
+  }
+
+  editRatingForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const ratingId = editRatingId.value;
+    const newStars = parseInt(editRatingValue.value, 10);
+    const newComment = editRatingComment.value.trim();
+
+    if (!newStars) {
+      alert('Por favor, selecciona una calificación de estrellas.');
+      return;
+    }
+
+    db.collection('ratings').doc(ratingId).update({
+      stars: newStars,
+      comment: newComment,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert('Calificación actualizada con éxito.');
+      closeModal(editRatingModal);
+    }).catch(error => {
+      console.error('Error al actualizar la calificación: ', error);
+      alert('Hubo un error al actualizar la calificación.');
+    });
+  });
+
+  closeEditRatingBtn.addEventListener('click', () => closeModal(editRatingModal));
+
+  if (editRatingStars) {
+    editRatingStars.forEach(star => {
+      star.addEventListener('mouseover', () => {
+        const value = star.getAttribute('data-value');
+        editRatingStars.forEach(s => {
+          s.classList.toggle('hovered', s.getAttribute('data-value') <= value);
+        });
+      });
+
+      star.addEventListener('mouseout', () => {
+        editRatingStars.forEach(s => s.classList.remove('hovered'));
+      });
+
+      star.addEventListener('click', () => {
+        const value = star.getAttribute('data-value');
+        editRatingValue.value = value;
+        editRatingStars.forEach(s => {
+          s.classList.toggle('filled', s.getAttribute('data-value') <= value);
+        });
+      });
+    });
+  }
 });

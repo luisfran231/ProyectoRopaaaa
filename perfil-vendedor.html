@@ -60,9 +60,9 @@
             <div class="seller-contact-info">
                 <h3>Contacto</h3>
                 <p><i class="fas fa-phone"></i> Teléfono: <span id="seller-phone"></span></p>
-                <p><i class="fab fa-whatsapp"></i> WhatsApp: <span id="seller-whatsapp"></span></p>
-                <p><i class="fab fa-facebook"></i> Facebook: <span id="seller-facebook"></span></p>
-                <p><i class="fab fa-instagram"></i> Instagram: <span id="seller-instagram"></span></p>
+                <p><a id="seller-whatsapp-link" href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> <span class="contact-text" id="seller-whatsapp"></span></a></p>
+                <p><a id="seller-facebook-link" href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook"></i> <span class="contact-text" id="seller-facebook"></span></a></p>
+                <p><a id="seller-instagram-link" href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i> <span class="contact-text" id="seller-instagram"></span></a></p>
             </div>
             <button id="edit-seller-profile-btn" class="hidden">Editar Perfil</button>
         </section>
@@ -95,6 +95,30 @@
                 <button type="submit">Enviar Calificación</button>
             </form>
         </section>
+
+        <!-- Modal para Editar Calificación -->
+        <div id="edit-rating-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Editar Calificación</h2>
+                <form id="edit-rating-form">
+                    <input type="hidden" id="edit-rating-id">
+                    <div class="rating-stars">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="edit-rating-value" name="rating-value" required>
+                    <div class="form-group">
+                        <label for="edit-rating-comment">Comentario:</label>
+                        <textarea id="edit-rating-comment" rows="4"></textarea>
+                    </div>
+                    <button type="submit">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
 
 
 

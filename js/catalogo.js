@@ -59,8 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA DE NEGOCIO ---
     logoutButton.addEventListener('click', () => {
-        localStorage.removeItem('cart');
-        auth.signOut().then(() => window.location.href = 'index.html');
+        if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+            localStorage.removeItem('cart');
+            auth.signOut().then(() => window.location.href = 'index.html');
+        }
     });
 
     function loadProducts(gender = 'all') {
