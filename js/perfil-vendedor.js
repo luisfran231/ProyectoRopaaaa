@@ -185,10 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
+      const userDoc = await db.collection('users').doc(currentUser.uid).get();
+      const username = userDoc.exists ? userDoc.data().username : 'Anónimo';
+
       await db.collection('ratings').add({
         sellerId: sellerId,
         customerId: currentUser.uid,
-        customerUsername: currentUser.username || 'Anónimo',
+        customerUsername: username,
         stars: rating,
         comment: comment,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -275,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.innerHTML = `
           <div class="rating-stars-display">${renderStars(r.stars||0)}</div>
           <p class="rating-comment">${escapeHtml(r.comment||'')}</p>
-          <p class="rating-user">- ${r.customerUsername || 'Anónimo'}</p>
+          <p class="rating-user">- ${r.customerUsername}</p>
         `;
         detailedRatingsList.appendChild(item);
       });

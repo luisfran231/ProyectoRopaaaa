@@ -419,10 +419,10 @@ userNav.insertBefore(profileChip, logoutButton);
         const order = doc.data();
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${order.productName}</td>
-          <td>${order.customerUsername}</td>
-          <td><span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></td>
-          <td class="action-buttons">
+          <td data-label="Producto">${order.productName}</td>
+          <td data-label="Cliente">${order.customerUsername}</td>
+          <td data-label="Estado"><span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></td>
+          <td data-label="Acciones" class="action-buttons">
             <button class="action-btn details-btn" data-id="${doc.id}">Detalles</button>
             ${(order.status === 'pendiente' || !order.status) ? 
               `<button class="action-btn accept-btn" data-id="${doc.id}">Aceptar</button>
