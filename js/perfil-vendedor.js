@@ -237,14 +237,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (u.facebook) {
         sellerFacebookLink.href = `https://facebook.com/${u.facebook}`;
-        sellerFacebookEl.textContent = u.facebook;
+        sellerFacebookEl.textContent = 'Facebook: ' + u.facebook;
       } else {
         sellerFacebookLink.parentElement.style.display = 'none';
       }
 
       if (u.instagram) {
         sellerInstagramLink.href = `https://instagram.com/${u.instagram}`;
-        sellerInstagramEl.textContent = u.instagram;
+        sellerInstagramEl.textContent = 'Instagram: ' + u.instagram;
       } else {
         sellerInstagramLink.parentElement.style.display = 'none';
       }
