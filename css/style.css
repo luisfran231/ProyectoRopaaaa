@@ -156,9 +156,16 @@ nav a:hover, .user-info a:hover {
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 500;
-    align-self: flex-end; /* Alinea el botón a la derecha */
     transition: background-color 0.2s ease;
 }
+
+.notification-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
 
 .notification-item button:hover {
     background: var(--accent-dark-lavender);

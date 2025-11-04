@@ -555,9 +555,22 @@ userNav.insertBefore(profileChip, logoutButton);
             const notification = doc.data();
             const notificationEl = document.createElement('div');
             notificationEl.className = 'notification-item';
+
+            let actionsHtml = `
+              <button class="mark-as-read-btn" data-notification-id="${doc.id}">Marcar como leído</button>
+            `;
+
+            if (notification.orderId) {
+              actionsHtml += `
+                <button class="download-pdf-btn" data-order-id="${notification.orderId}">Descargar PDF</button>
+              `;
+            }
+
             notificationEl.innerHTML = `
               <p>${notification.message}</p>
-              <button class="mark-as-read-btn" data-notification-id="${doc.id}">Marcar como leído</button>
+              <div class="notification-actions">
+                ${actionsHtml}
+              </div>
             `;
             notificationDropdown.appendChild(notificationEl);
           });
@@ -573,5 +586,76 @@ userNav.insertBefore(profileChip, logoutButton);
       const notificationId = e.target.dataset.notificationId;
       db.collection('notifications').doc(notificationId).update({ read: true });
     }
+    if (e.target.classList.contains('download-pdf-btn')) {
+      const orderId = e.target.dataset.orderId;
+      downloadOrderPdf(orderId);
+    }
   });
+
+  // --- DESCARGAR PEDIDO EN PDF ---
+  function downloadOrderPdf(orderId) {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+      console.error("jsPDF no está cargado.");
+      alert("Error: La librería para generar PDF no se ha cargado correctamente.");
+      return;
+    }
+
+    db.collection('orders').doc(orderId).get().then(doc => {
+      if (doc.exists) {
+        const order = doc.data();
+        const orderDate = order.createdAt?.seconds
+          ? new Date(order.createdAt.seconds * 1000)
+          : new Date();
+        const formattedDate = orderDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        const docPDF = new jsPDF();
+
+        // Encabezado
+        docPDF.setFontSize(20);
+        docPDF.text("Detalles del Pedido", 105, 20, { align: "center" });
+
+        // Logo (si tienes uno)
+        // Reemplaza 'URL_DEL_LOGO' con la URL de tu logo
+        // docPDF.addImage('URL_DEL_LOGO', 'JPEG', 15, 10, 30, 30);
+
+        // Información del pedido
+        docPDF.setFontSize(12);
+        docPDF.text(`ID del Pedido: ${orderId}`, 15, 40);
+        docPDF.text(`Fecha: ${formattedDate}`, 15, 47);
+
+        // AutoTable para los detalles
+        docPDF.autoTable({
+          startY: 55,
+          head: [['Campo', 'Valor']],
+          body: [
+            ['Producto', order.productName],
+            ['Cliente', order.customerUsername],
+            ['Lugar de Entrega', order.deliveryLocation || '-'],
+            ['Estado', order.status || 'pendiente'],
+            ['Precio', `$${order.price ? order.price.toFixed(2) : 'N/A'}`]
+          ],
+          theme: 'grid',
+          headStyles: { fillColor: [44, 62, 80] },
+        });
+
+        // Pie de página
+        const pageCount = docPDF.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          docPDF.setPage(i);
+          docPDF.setFontSize(10);
+          docPDF.text('Gracias por tu compra en BZ Online', 105, 285, { align: 'center' });
+        }
+
+        // Guardar el PDF
+        docPDF.save(`pedido-${orderId}.pdf`);
+
+      } else {
+        alert('No se encontraron detalles para este pedido.');
+      }
+    }).catch(error => {
+      console.error("Error al generar el PDF: ", error);
+      alert("Hubo un error al generar el PDF del pedido.");
+    });
+  }
 }); // DOMContentLoaded
