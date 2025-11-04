@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const notificationBell = document.getElementById('notification-bell');
   const notificationCount = document.getElementById('notification-count');
   const imageUploadInput = document.getElementById('image-upload');
+  const imageUploadStatus = document.getElementById('image-upload-status');
   const productImageHiddenInput = document.getElementById('product-image');
   const notificationDropdown = document.getElementById('notification-dropdown');
 
