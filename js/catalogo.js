@@ -323,7 +323,7 @@ async function generatePdf(orderId) {
     y += 5;
 
     // --- TOTALES ---
-    const subtotal = product.price || 0;
+    const subtotal = order.price || 0;
     const envio = 0;
     const total = subtotal + envio;
 

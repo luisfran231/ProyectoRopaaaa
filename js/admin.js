@@ -633,7 +633,9 @@ userNav.insertBefore(profileChip, logoutButton);
             ['Cliente', order.customerUsername],
             ['Lugar de Entrega', order.deliveryLocation || '-'],
             ['Estado', order.status || 'pendiente'],
-            ['Precio', `$${order.price ? order.price.toFixed(2) : 'N/A'}`]
+            ['Subtotal', `$${order.price ? order.price.toFixed(2) : 'N/A'}`],
+            ['Envío', '$0.00'],
+            ['Total', `$${order.price ? order.price.toFixed(2) : 'N/A'}`]
           ],
           theme: 'grid',
           headStyles: { fillColor: [44, 62, 80] },

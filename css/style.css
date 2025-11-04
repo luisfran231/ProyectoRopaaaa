@@ -1230,7 +1230,7 @@ footer {
         gap: 1.5rem;
     }
 
-    .user-info a, .user-info button:not(#logout-button) {
+    .user-info > a, .user-info > button:not(#logout-button) {
         display: none;
     }
 

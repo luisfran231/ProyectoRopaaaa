@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         db.collection('orders').add({
             productId: currentProduct.id,
             productName: currentProduct.name,
+            price: currentProduct.price, // Añadir precio al pedido
             sellerId: currentProduct.sellerId,
             customerId: currentUser.uid,
             customerUsername: currentUser.username,
