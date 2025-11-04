@@ -230,21 +230,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (u.whatsapp) {
         sellerWhatsappLink.href = `https://wa.me/${u.whatsapp.replace(/[^0-9]/g, '')}`;
-        sellerWhatsappEl.textContent = u.whatsapp;
+        sellerWhatsappEl.textContent = 'WhatsApp';
       } else {
         sellerWhatsappLink.parentElement.style.display = 'none';
       }
 
       if (u.facebook) {
         sellerFacebookLink.href = `https://facebook.com/${u.facebook}`;
-        sellerFacebookEl.textContent = 'Facebook: ' + u.facebook;
+        sellerFacebookEl.textContent = 'Facebook';
       } else {
         sellerFacebookLink.parentElement.style.display = 'none';
       }
 
       if (u.instagram) {
         sellerInstagramLink.href = `https://instagram.com/${u.instagram}`;
-        sellerInstagramEl.textContent = 'Instagram: ' + u.instagram;
+        sellerInstagramEl.textContent = 'Instagram';
       } else {
         sellerInstagramLink.parentElement.style.display = 'none';
       }
