@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA DE NEGOCIO ---
     logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('cart');
         auth.signOut().then(() => window.location.href = 'index.html');
     });
 
@@ -187,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!notification.message.includes('rechazó')) {
                         notificationHTML += `<button class="download-pdf-btn" data-order-id="${notification.orderId}">Descargar PDF</button>`;
                     }
+                    notificationHTML += `<button class="mark-as-read-btn" data-notification-id="${doc.id}">Marcar como leído</button>`;
                     notificationEl.innerHTML = notificationHTML;
                     notificationDropdown.appendChild(notificationEl);
                 });
@@ -198,34 +200,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     notificationDropdown.addEventListener('click', async e => {
-    if (e.target.classList.contains('download-pdf-btn')) {
-        const orderId = e.target.dataset.orderId;
-
-        // Buscar el ID del documento de notificación
-        const notificationItem = e.target.closest('.notification-item');
-        const message = notificationItem.querySelector('p').textContent;
-
-        // Llamamos a generar el PDF
-        await generatePdf(orderId);
-
-        // Marcar como leída la notificación en Firestore
-        const snapshot = await db.collection('notifications')
-            .where('userId', '==', currentUser.uid)
-            .where('orderId', '==', orderId)
-            .get();
-
-        snapshot.forEach(doc => {
-            db.collection('notifications').doc(doc.id).update({ read: true });
-        });
-
-        // Opcional: eliminar visualmente la notificación sin esperar el snapshot
-        notificationItem.remove();
-    }
-});
-notificationDropdown.addEventListener('click', e => {
         if (e.target.classList.contains('download-pdf-btn')) {
             const orderId = e.target.dataset.orderId;
-            generatePdf(orderId);
+            await generatePdf(orderId);
+            const snapshot = await db.collection('notifications')
+                .where('userId', '==', currentUser.uid)
+                .where('orderId', '==', orderId)
+                .get();
+            snapshot.forEach(doc => {
+                db.collection('notifications').doc(doc.id).update({ read: true });
+            });
+        } else if (e.target.classList.contains('mark-as-read-btn')) {
+            const notificationId = e.target.dataset.notificationId;
+            db.collection('notifications').doc(notificationId).update({ read: true });
         }
     });
 

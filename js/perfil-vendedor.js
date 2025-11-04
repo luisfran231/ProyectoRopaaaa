@@ -44,15 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileUrlHidden = document.getElementById('profile-image-url');
   const currentPreview   = document.getElementById('current-profile-picture');
 
-  /* ====== Cloudinary (foto de perfil) ====== */
+
   const CLOUD_NAME = 'dvdctjltz';
-  // 1er intento: preset para perfil; 2do: preset ya usado en admin
+  
   const PRESETS_TRY = ['perfil-vendedores', 'catalogo-productos'];
 
   let currentUser;
   let sellerId;
 
-  /* ====== Helpers de modal accesible ====== */
+ 
   let lastFocused = null;
   let keyHandler  = null;
 
@@ -324,8 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fd = new FormData();
         fd.append('file', file);
         fd.append('upload_preset', preset);
-        // Opcional: carpeta
-        // fd.append('folder', 'bz-online/perfiles');
+       
 
         const res = await fetch(urlBase, { method:'POST', body: fd });
         const data = await res.json();

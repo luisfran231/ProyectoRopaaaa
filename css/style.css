@@ -1086,6 +1086,7 @@ h2 {
     gap: 0.8rem;
     margin-bottom: 0.8rem;
     font-size: 1.1rem;
+    word-break: break-all;
 }
 
 .seller-contact-info i {
@@ -1220,8 +1221,17 @@ footer {
         display: flex;
     }
 
-    .user-info {
+    .user-info .icon-container {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .user-info a, .user-info button:not(#logout-button) {
         display: none;
+    }
+
+    .user-info.active {
+        display: flex;
         flex-direction: column;
         width: 100%;
         text-align: center;
@@ -1234,11 +1244,8 @@ footer {
         z-index: 1000;
     }
 
-    .user-info.active {
-        display: flex;
-    }
-
-    .user-info a, .user-info p, .user-info .notification-bell, .user-info .cart-icon-container {
+    .user-info.active a, .user-info.active button {
+        display: block;
         margin: 1rem 0;
     }
 

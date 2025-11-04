@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const notificationCount = document.getElementById('notification-count');
   const imageUploadInput = document.getElementById('image-upload');
   const productImageHiddenInput = document.getElementById('product-image');
-  const imageUploadStatus = document.getElementById('image-upload-status');
-  const pendingOrdersCount = document.getElementById('pending-orders-count');
+  const notificationDropdown = document.getElementById('notification-dropdown');
 
   // Modales
   const orderDetailsModal = document.getElementById('order-details-modal');
@@ -135,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
           currentUser = { ...user, ...userData };
           viewCatalogLink.style.display = 'none'; // Ocultar "Ver Catálogo"
 
+
          // ... dentro de onAuthStateChanged, cuando el role === 'vendedor'
 const userNav = document.getElementById('main-nav');
 const profileChip = document.createElement('a');
@@ -151,7 +151,6 @@ userNav.insertBefore(profileChip, logoutButton);
           loadRatings(currentUser.uid);
           loadOrders(currentUser.uid);
           loadNotifications(currentUser.uid);
-          loadPendingOrdersCount(currentUser.uid);
         } else {
           window.location.href = 'catalogo.html';
         }
@@ -163,6 +162,7 @@ userNav.insertBefore(profileChip, logoutButton);
 
   // --- LOGOUT ---
   logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('cart');
     auth.signOut().then(() => window.location.href = 'index.html');
   });
 
@@ -536,31 +536,41 @@ userNav.insertBefore(profileChip, logoutButton);
       });
   }
 
-  function loadPendingOrdersCount(sellerId) {
-    db.collection('orders').where('sellerId', '==', sellerId).where('status', '==', 'pendiente').onSnapshot(snapshot => {
-        const count = snapshot.size;
-        if (count > 0) {
-            pendingOrdersCount.textContent = count;
-            pendingOrdersCount.style.display = 'inline-block';
-        } else {
-            pendingOrdersCount.style.display = 'none';
-        }
-    });
-  }
-
   // --- NOTIFICACIONES ---
+  notificationBell.addEventListener('click', () => {
+    notificationDropdown.style.display = notificationDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
   function loadNotifications(sellerId) {
-    db.collection('orders')
-      .where('sellerId', '==', sellerId)
-      .where('status', '==', 'pendiente')
+    db.collection('notifications').where('userId', '==', sellerId).where('read', '==', false)
       .onSnapshot(snapshot => {
-        const newOrdersCount = snapshot.size;
-        if (newOrdersCount > 0) {
-          notificationCount.textContent = newOrdersCount;
+        const newNotificationsCount = snapshot.size;
+        notificationCount.textContent = newNotificationsCount;
+        notificationDropdown.innerHTML = '';
+
+        if (newNotificationsCount > 0) {
           notificationCount.style.display = 'block';
+          snapshot.forEach(doc => {
+            const notification = doc.data();
+            const notificationEl = document.createElement('div');
+            notificationEl.className = 'notification-item';
+            notificationEl.innerHTML = `
+              <p>${notification.message}</p>
+              <button class="mark-as-read-btn" data-notification-id="${doc.id}">Marcar como leído</button>
+            `;
+            notificationDropdown.appendChild(notificationEl);
+          });
         } else {
           notificationCount.style.display = 'none';
+          notificationDropdown.innerHTML = '<p>No hay notificaciones nuevas.</p>';
         }
       });
   }
+
+  notificationDropdown.addEventListener('click', e => {
+    if (e.target.classList.contains('mark-as-read-btn')) {
+      const notificationId = e.target.dataset.notificationId;
+      db.collection('notifications').doc(notificationId).update({ read: true });
+    }
+  });
 }); // DOMContentLoaded
