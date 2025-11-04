@@ -236,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (u.facebook) {
-        sellerFacebookLink.href = u.facebook;
-        sellerFacebookEl.textContent = u.facebook.split('/').filter(Boolean).pop();
+        sellerFacebookLink.href = `https://facebook.com/${u.facebook}`;
+        sellerFacebookEl.textContent = u.facebook;
       } else {
         sellerFacebookLink.parentElement.style.display = 'none';
       }

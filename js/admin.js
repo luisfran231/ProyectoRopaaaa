@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const productImageHiddenInput = document.getElementById('product-image');
   const notificationDropdown = document.getElementById('notification-dropdown');
 
+  // Carrusel
+  const myProductsCarousel = document.getElementById('my-products-carousel');
+  const myProductsViewport = myProductsCarousel.querySelector('.carousel-viewport');
+  const prevButton = myProductsCarousel.querySelector('.prev');
+  const nextButton = myProductsCarousel.querySelector('.next');
+
   // Modales
   const orderDetailsModal = document.getElementById('order-details-modal');
   const closeOrderModalBtn = orderDetailsModal.querySelector('.close-button');
@@ -425,13 +431,16 @@ userNav.insertBefore(profileChip, logoutButton);
           <td data-label="Producto">${order.productName}</td>
           <td data-label="Cliente">${order.customerUsername}</td>
           <td data-label="Estado"><span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></td>
-          <td data-label="Acciones" class="action-buttons">
-            <button class="action-btn details-btn" data-id="${doc.id}">Detalles</button>
-            ${(order.status === 'pendiente' || !order.status) ? 
-              `<button class="action-btn accept-btn" data-id="${doc.id}">Aceptar</button>
-               <button class="action-btn reject-btn" data-id="${doc.id}">Rechazar</button>` : ''
-            }
-            <button class="action-btn delete-btn" data-id="${doc.id}">Eliminar</button>
+          <td data-label="Acciones" class="actions-cell">
+            <button class="actions-dropdown-btn">⋮</button>
+            <div class="actions-dropdown-content">
+              <button class="action-btn details-btn" data-id="${doc.id}">Detalles</button>
+              ${(order.status === 'pendiente' || !order.status) ? 
+                `<button class="action-btn accept-btn" data-id="${doc.id}">Aceptar</button>
+                 <button class="action-btn reject-btn" data-id="${doc.id}">Rechazar</button>` : ''
+              }
+              <button class="action-btn delete-btn" data-id="${doc.id}">Eliminar</button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -449,6 +458,16 @@ userNav.insertBefore(profileChip, logoutButton);
       });
       ordersList.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', e => deleteOrder(e.target.dataset.id));
+      });
+
+      ordersList.addEventListener('click', e => {
+        if (e.target.classList.contains('actions-dropdown-btn')) {
+          const dropdown = e.target.nextElementSibling;
+          document.querySelectorAll('.actions-dropdown-content.show').forEach(d => {
+            if (d !== dropdown) d.classList.remove('show');
+          });
+          dropdown.classList.toggle('show');
+        }
       });
     });
   }
@@ -662,4 +681,15 @@ userNav.insertBefore(profileChip, logoutButton);
       alert("Hubo un error al generar el PDF del pedido.");
     });
   }
+
+  prevButton.addEventListener('click', () => {
+    const cardWidth = myProductsViewport.querySelector('.product-card').offsetWidth;
+    myProductsViewport.scrollBy({ left: -cardWidth - 24, behavior: 'smooth' }); // 24 is the gap
+  });
+
+  nextButton.addEventListener('click', () => {
+    const cardWidth = myProductsViewport.querySelector('.product-card').offsetWidth;
+    myProductsViewport.scrollBy({ left: cardWidth + 24, behavior: 'smooth' }); // 24 is the gap
+  });
+
 }); // DOMContentLoaded

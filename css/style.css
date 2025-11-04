@@ -43,6 +43,7 @@ header {
     align-items: center;
     box-shadow: var(--shadow);
     position: relative; /* Añadido para el menú desplegable */
+    z-index: 1001;
 }
 
 .logo-container {
@@ -1241,13 +1242,12 @@ footer {
         position: absolute;
         top: 100%;
         right: 0;
+        left: 0;
         background: var(--light-surface);
         box-shadow: var(--shadow);
         z-index: 1000;
-        border-radius: 0 0 var(--border-radius) var(--border-radius);
-        width: 250px; /* Ancho del desplegable */
         padding: 1rem;
-        align-items: flex-start;
+        align-items: center;
     }
 
     .user-info.active a, .user-info.active button {
@@ -1851,4 +1851,35 @@ body.modal-open { overflow: hidden; }
         right: 5%;
         left: 5%;
     }
+}
+
+.actions-cell {
+    position: relative;
+}
+
+.actions-dropdown-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.actions-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--light-surface);
+    min-width: 160px;
+    box-shadow: var(--shadow);
+    z-index: 1;
+    border-radius: var(--border-radius);
+}
+
+.actions-dropdown-content button {
+    width: 100%;
+    text-align: left;
+}
+
+.actions-dropdown-content.show {
+    display: block;
 }
