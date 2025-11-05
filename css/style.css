@@ -1563,6 +1563,17 @@ body.modal-open { overflow: hidden; }
   #nuevo-producto .form-row,
   #edit-product-form .form-row { grid-template-columns: 1fr; }  /* apila Talla/Género */
   .close-button { top: .75rem; right: .75rem; }
+
+  .delivery-time-grid {
+      grid-template-columns: 1fr; /* Stack date and time inputs vertically */
+  }
+
+  .form-wrapper-grid {
+      grid-template-columns: 1fr; /* Stack branding and form content vertically */
+  }
+  .form-branding {
+      display: none; /* Hide branding on small screens to save space */
+  }
 }
 
 /* ===== Detalles visuales de select para dark theme ===== */
