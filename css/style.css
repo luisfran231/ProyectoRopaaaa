@@ -888,9 +888,18 @@ h2 {
         grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
     }
 
+    .modal {
+        padding: 0;
+    }
+
     .modal-content {
-        width: 95%;
-        margin: 20px auto;
+        width: 100vw;
+        height: 100vh;         /* ocupa toda la pantalla */
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;      /* hoja completa */
+        margin: 0; /* Reset margin */
+        padding: 1.5rem;
     }
 }
 
@@ -1223,18 +1232,32 @@ body.nav-open {
 }
 
 @media (max-width: 768px) {
+    .hamburger-menu {
+        display: flex;
+    }
+
+    .user-info {
+        display: none;
+    }
+
     .user-info.active {
         display: flex;
         flex-direction: column;
-        position: absolute;
-        top: 100%;
+        position: fixed; /* Cambiado a fixed para cubrir toda la pantalla */
+        top: 0;
         right: 0;
         left: 0;
+        bottom: 0; /* Cubrir toda la altura */
         background: var(--light-surface);
         box-shadow: var(--shadow);
         z-index: 1002;
-        padding: 1rem;
+        padding: 2rem; /* Aumentar padding */
         align-items: center;
+        justify-content: center; /* Centrar verticalmente */
+    }
+
+    body {
+        overflow-x: hidden;
     }
 
     .user-info.active a, .user-info.active button {
