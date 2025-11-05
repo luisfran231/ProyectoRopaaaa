@@ -159,7 +159,8 @@ userNav.insertBefore(profileChip, logoutButton);
           loadOrders(currentUser.uid);
           loadNotifications(currentUser.uid);
         } else {
-          window.location.href = 'catalogo.html';
+          // Si no es vendedor, redirigir a la página principal para evitar bucles.
+          window.location.href = 'index.html';
         }
       });
     } else {

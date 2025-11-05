@@ -34,19 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     const userData = doc.data();
                     currentUser = { ...user, ...userData };
 
-                    const userNav = document.getElementById('main-nav');
-                    const logoutButton = document.getElementById('logout-button');
                     if (currentUser.role === 'vendedor') {
-                        const profileLink = document.createElement('a');
-                        profileLink.textContent = 'Mi Perfil';
-                        profileLink.href = `perfil-vendedor.html?id=${currentUser.uid}`;
-                        userNav.insertBefore(profileLink, logoutButton);
-                    }
-                    if (currentUser.role === 'cliente') {
-                        loadProducts(genderFilter.value); // Load products with the default filter
+                        window.location.href = 'admin.html';
+                    } else if (currentUser.role === 'cliente') {
+                        const userNav = document.getElementById('main-nav');
+                        const logoutButton = document.getElementById('logout-button');
+                        loadProducts(genderFilter.value);
                         loadNotifications(currentUser.uid);
                     } else {
-                        window.location.href = 'admin.html';
+                        // Rol no definido, cerrar sesión para evitar bucles.
+                        auth.signOut();
                     }
                 } else {
                     auth.signOut();
