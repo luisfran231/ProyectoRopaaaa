@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const sellerWhatsappEl       = document.getElementById('seller-whatsapp');
   const sellerWhatsappLink = document.getElementById('seller-whatsapp-link');
   const sellerFacebookLink = document.getElementById('seller-facebook-link');
-  const sellerFacebookEl = document.getElementById('seller-facebook');
   const sellerInstagramLink = document.getElementById('seller-instagram-link');
   const sellerInstagramEl      = document.getElementById('seller-instagram');
 
@@ -237,14 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (u.facebook) {
-        sellerFacebookLink.href = u.facebook;
+        sellerFacebookLink.href = `https://facebook.com/${u.facebook}`;
         sellerFacebookEl.textContent = 'Facebook';
       } else {
         sellerFacebookLink.parentElement.style.display = 'none';
       }
 
       if (u.instagram) {
-        sellerInstagramLink.href = u.instagram;
+        sellerInstagramLink.href = `https://instagram.com/${u.instagram}`;
         sellerInstagramEl.textContent = 'Instagram';
       } else {
         sellerInstagramLink.parentElement.style.display = 'none';
