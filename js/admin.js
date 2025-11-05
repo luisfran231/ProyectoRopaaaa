@@ -139,7 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (doc.exists && doc.data().role === 'vendedor') {
           const userData = doc.data();
           currentUser = { ...user, ...userData };
-          viewCatalogLink.style.display = 'none'; // Ocultar "Ver Catálogo"
+          if (viewCatalogLink) {
+            viewCatalogLink.style.display = 'none'; // Ocultar "Ver Catálogo"
+          }
 
 
          // ... dentro de onAuthStateChanged, cuando el role === 'vendedor'
