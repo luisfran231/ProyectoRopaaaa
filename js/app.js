@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hamburger && nav) {
         hamburger.addEventListener('click', () => {
             nav.classList.toggle('active');
+            document.body.classList.toggle('nav-open');
         });
     }
 

@@ -1218,24 +1218,11 @@ footer {
 }
 
 /* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
+body.nav-open {
+    overflow: hidden;
+}
+
 @media (max-width: 768px) {
-    header {
-        flex-wrap: wrap;
-    }
-
-    .hamburger-menu {
-        display: flex;
-    }
-
-    .user-info .icon-container {
-        display: flex;
-        gap: 1.5rem;
-    }
-
-    .user-info > a, .user-info > button:not(#logout-button) {
-        display: none;
-    }
-
     .user-info.active {
         display: flex;
         flex-direction: column;
@@ -1245,7 +1232,7 @@ footer {
         left: 0;
         background: var(--light-surface);
         box-shadow: var(--shadow);
-        z-index: 1000;
+        z-index: 1002;
         padding: 1rem;
         align-items: center;
     }

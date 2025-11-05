@@ -448,26 +448,22 @@ userNav.insertBefore(profileChip, logoutButton);
       });
       ordersList.appendChild(table);
 
-      ordersList.querySelectorAll('.details-btn').forEach(button => {
-        button.addEventListener('click', e => showOrderDetails(e.target.dataset.id));
-      });
-      ordersList.querySelectorAll('.accept-btn').forEach(button => {
-        button.addEventListener('click', e => acceptOrder(e.target.dataset.id));
-      });
-      ordersList.querySelectorAll('.reject-btn').forEach(button => {
-        button.addEventListener('click', e => rejectOrder(e.target.dataset.id));
-      });
-      ordersList.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', e => deleteOrder(e.target.dataset.id));
-      });
-
       ordersList.addEventListener('click', e => {
-        if (e.target.classList.contains('actions-dropdown-btn')) {
-          const dropdown = e.target.nextElementSibling;
+        const target = e.target;
+        if (target.classList.contains('actions-dropdown-btn')) {
+          const dropdown = target.nextElementSibling;
           document.querySelectorAll('.actions-dropdown-content.show').forEach(d => {
             if (d !== dropdown) d.classList.remove('show');
           });
           dropdown.classList.toggle('show');
+        } else if (target.classList.contains('details-btn')) {
+            showOrderDetails(target.dataset.id);
+        } else if (target.classList.contains('accept-btn')) {
+            acceptOrder(target.dataset.id);
+        } else if (target.classList.contains('reject-btn')) {
+            rejectOrder(target.dataset.id);
+        } else if (target.classList.contains('delete-btn')) {
+            deleteOrder(target.dataset.id);
         }
       });
     });
