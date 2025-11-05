@@ -1,12 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.getElementById('hamburger-menu');
-    const nav = document.getElementById('main-nav');
+    const sidebar = document.getElementById('nav-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+    const mainNav = document.getElementById('main-nav');
+    const sidebarContent = sidebar ? sidebar.querySelector('.sidebar-content') : null;
 
-    if (hamburger && nav) {
-        hamburger.addEventListener('click', () => {
-            nav.classList.toggle('active');
-            document.body.classList.toggle('nav-open');
-        });
+    function openSidebar() {
+        if (!sidebar || !overlay) return;
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        document.body.classList.add('nav-open');
+    }
+
+    function closeSidebar() {
+        if (!sidebar || !overlay) return;
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.classList.remove('nav-open');
+    }
+
+    if (hamburger) {
+        hamburger.addEventListener('click', openSidebar);
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+    }
+
+    // Clone nav items to sidebar
+    if (mainNav && sidebarContent) {
+        const navClone = mainNav.cloneNode(true);
+        // Clean up the clone for sidebar display
+        navClone.id = '';
+        navClone.classList.remove('user-info');
+        navClone.classList.add('sidebar-nav');
+        sidebarContent.appendChild(navClone);
     }
 
     const auth = firebase.auth();

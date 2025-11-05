@@ -154,6 +154,11 @@ profileChip.innerHTML = `
 
 userNav.insertBefore(profileChip, logoutButton);
 
+          const sidebarContent = document.querySelector('#nav-sidebar .sidebar-content .sidebar-nav');
+          if (sidebarContent) {
+              sidebarContent.insertBefore(profileChip.cloneNode(true), sidebarContent.firstChild);
+          }
+
           loadProducts(currentUser.uid);
           loadRatings(currentUser.uid);
           loadOrders(currentUser.uid);
@@ -306,6 +311,7 @@ userNav.insertBefore(profileChip, logoutButton);
         editProductImage.value = product.imageUrl;
         document.getElementById('edit-product-size').value = product.size;
         document.getElementById('edit-product-gender').value = product.gender;
+        document.getElementById('edit-product-status').value = product.status || 'disponible';
 
         openModal(editProductModal, { autoFocusSelector: '#edit-product-name' });
       }
@@ -325,7 +331,8 @@ userNav.insertBefore(profileChip, logoutButton);
       description: editProductDesc.value,
       imageUrl: editProductImage.value,
       size: document.getElementById('edit-product-size').value,
-      gender: document.getElementById('edit-product-gender').value
+      gender: document.getElementById('edit-product-gender').value,
+      status: document.getElementById('edit-product-status').value
     };
 
     db.collection('products').doc(productId).update(updatedProduct).then(() => {

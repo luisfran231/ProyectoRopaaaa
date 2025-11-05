@@ -11,17 +11,18 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img">
-            <h1>BZ Online</h1>
+            <a href="catalogo.html">
+                <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img">
+                <h1>BZ Online</h1>
+            </a>
         </div>
-        <button class="hamburger-menu" id="hamburger-menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        
+        <!-- Desktop Navigation -->
         <nav class="user-info" id="main-nav">
+            <!-- Profile Chip will be injected here by JS -->
+            <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
             <div class="icon-container">
-                <div id="notification-bell" class="notification-bell">
+                <div id="notification-bell" class="notification-bell" title="Notificaciones">
                     <i class="bell-icon">&#128276;</i>
                     <span id="notification-count" class="notification-count" style="display:none;">0</span>
                     <div id="notification-dropdown" class="notification-dropdown" style="display:none;"></div>
@@ -31,10 +32,28 @@
                     <span id="cart-count" class="cart-count" style="display:none;">0</span>
                 </div>
             </div>
-            <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
             <button id="logout-button">Cerrar Sesión</button>
         </nav>
+
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </header>
+
+    <!-- Sidebar Navigation (for mobile) -->
+    <div id="nav-sidebar" class="nav-sidebar">
+        <div class="sidebar-header">
+            <h2>Menú</h2>
+            <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <!-- Sidebar items will be a clone of #main-nav -->
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
     <main class="container">
         <section id="filters">
             <h2>Filtrar por Género</h2>
