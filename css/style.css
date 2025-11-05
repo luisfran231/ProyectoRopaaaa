@@ -1289,9 +1289,30 @@ footer {
 .sidebar-nav a,
 .sidebar-nav button {
     font-size: 1.2rem;
-    padding: 0.5rem 0;
+    padding: 0.75rem 1rem;
     width: 100%;
     text-align: left;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav button:hover {
+    background-color: var(--light-background);
+    color: var(--accent-light-lavender);
+}
+
+.sidebar-nav .profile-chip {
+    margin-bottom: 1rem;
+}
+
+.sidebar-nav .logout-button {
+    margin-top: 1rem;
+    border-top: 1px solid #444;
+    padding-top: 1.5rem;
 }
 
 .sidebar-overlay {
@@ -1984,20 +2005,7 @@ body.modal-open { overflow: hidden; }
     display: block;
 }
 
-/* Sidebar visible en móvil */
-.nav-sidebar {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 80%;
-    height: 100%;
-    background-color: #fff;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-    transition: left 0.3s ease;
-    z-index: 2000;
-    overflow-y: auto;
-    padding: 1rem;
-}
+
 
 .nav-sidebar.active {
     left: 0;

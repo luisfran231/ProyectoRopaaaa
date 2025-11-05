@@ -39,6 +39,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (currentUser.role === 'cliente') {
                         const userNav = document.getElementById('main-nav');
                         const logoutButton = document.getElementById('logout-button');
+                        const profileChip = document.createElement('a');
+                        profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+                        profileChip.className = 'profile-chip';
+                        profileChip.innerHTML = `
+                          <img class="chip-avatar" src="${currentUser.photoUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.username) + '&background=2c2c2c&color=e0e0e0'}" alt="Perfil">
+                          <span class="chip-name">${currentUser.username}</span>
+                        `;
+
+                        if(userNav && logoutButton) {
+                            userNav.insertBefore(profileChip, logoutButton);
+                        }
+
+                        const sidebarNav = document.querySelector('#nav-sidebar .sidebar-nav');
+                        if (sidebarNav) {
+                            sidebarNav.insertBefore(profileChip.cloneNode(true), sidebarNav.firstChild);
+                        }
+
                         loadProducts(genderFilter.value);
                         loadNotifications(currentUser.uid);
                     } else {
@@ -382,33 +399,4 @@ async function toDataURL(url) {
 
 });
 
-// --- MENÚ MÓVIL: Clonar navegación de escritorio ---
-document.addEventListener("DOMContentLoaded", () => {
-    const hamburgerMenu = document.getElementById("hamburger-menu");
-    const navSidebar = document.getElementById("nav-sidebar");
-    const sidebarOverlay = document.getElementById("sidebar-overlay");
-    const closeSidebarBtn = document.getElementById("close-sidebar-btn");
-    const sidebarContent = document.querySelector(".sidebar-content");
-    const mainNav = document.getElementById("main-nav");
 
-    // Abrir menú
-    hamburgerMenu.addEventListener("click", () => {
-        sidebarContent.innerHTML = ""; // Limpia por si acaso
-        const clone = mainNav.cloneNode(true);
-        clone.id = "sidebar-nav"; // evitar duplicados
-        sidebarContent.appendChild(clone);
-        navSidebar.classList.add("active");
-        sidebarOverlay.classList.add("active");
-        document.body.style.overflow = "hidden"; // evitar scroll detrás
-    });
-
-    // Cerrar menú
-    closeSidebarBtn.addEventListener("click", closeSidebar);
-    sidebarOverlay.addEventListener("click", closeSidebar);
-
-    function closeSidebar() {
-        navSidebar.classList.remove("active");
-        sidebarOverlay.classList.remove("active");
-        document.body.style.overflow = "auto";
-    }
-});

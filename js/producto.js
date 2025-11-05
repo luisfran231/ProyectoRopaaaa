@@ -36,7 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
             db.collection('users').doc(user.uid).get().then(doc => {
                 if (doc.exists) {
                     currentUser = { ...user, ...doc.data() };
-                    userDisplay.textContent = `${currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}: ${currentUser.username}`;
+                    const userNav = document.getElementById('main-nav');
+                    const logoutButton = document.getElementById('logout-button');
+                    const profileChip = document.createElement('a');
+                    profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+                    profileChip.className = 'profile-chip';
+                    profileChip.innerHTML = `
+                      <img class="chip-avatar" src="${currentUser.photoUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.username) + '&background=2c2c2c&color=e0e0e0'}" alt="Perfil">
+                      <span class="chip-name">${currentUser.username}</span>
+                    `;
+
+                    if(userNav && logoutButton) {
+                        userNav.insertBefore(profileChip, logoutButton);
+                    }
+
+                    const sidebarNav = document.querySelector('#nav-sidebar .sidebar-nav');
+                    if (sidebarNav) {
+                        sidebarNav.insertBefore(profileChip.cloneNode(true), sidebarNav.firstChild);
+                    }
                 } else {
                     auth.signOut();
                 }
