@@ -427,38 +427,26 @@ userNav.insertBefore(profileChip, logoutButton);
       snapshot.forEach(doc => {
         const order = doc.data();
         const tr = document.createElement('tr');
-
-        // Construir botones de acción
-        let actionButtons = `
-          <button class="action-btn details-btn" data-id="${doc.id}">Detalles</button>
-        `;
-        if (order.status === 'pendiente' || !order.status) {
-          actionButtons += `
-            <button class="action-btn accept-btn" data-id="${doc.id}">Aceptar</button>
-            <button class="action-btn reject-btn" data-id="${doc.id}">Rechazar</button>
-          `;
-        } else if (order.status === 'aceptado') {
-          actionButtons += `
-            <button class="action-btn download-pdf-btn" data-id="${doc.id}">Descargar PDF</button>
-          `;
-        }
-        actionButtons += `
-          <button class="action-btn delete-btn" data-id="${doc.id}">Eliminar</button>
-        `;
-
         tr.innerHTML = `
           <td data-label="Producto">${order.productName}</td>
           <td data-label="Cliente">${order.customerUsername}</td>
           <td data-label="Estado"><span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></td>
-          <td data-label="Acciones" class="action-buttons">
-            ${actionButtons}
+          <td data-label="Acciones" class="actions-cell">
+            <button class="actions-dropdown-btn">⋮</button>
+            <div class="actions-dropdown-content">
+              <button class="action-btn details-btn" data-id="${doc.id}">Detalles</button>
+              ${(order.status === 'pendiente' || !order.status) ? 
+                `<button class="action-btn accept-btn" data-id="${doc.id}">Aceptar</button>
+                 <button class="action-btn reject-btn" data-id="${doc.id}">Rechazar</button>` : ''
+              }
+              <button class="action-btn delete-btn" data-id="${doc.id}">Eliminar</button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
       });
       ordersList.appendChild(table);
 
-      // Asignar eventos
       ordersList.querySelectorAll('.details-btn').forEach(button => {
         button.addEventListener('click', e => showOrderDetails(e.target.dataset.id));
       });
@@ -471,8 +459,15 @@ userNav.insertBefore(profileChip, logoutButton);
       ordersList.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', e => deleteOrder(e.target.dataset.id));
       });
-      ordersList.querySelectorAll('.download-pdf-btn').forEach(button => {
-        button.addEventListener('click', e => downloadOrderPdf(e.target.dataset.id));
+
+      ordersList.addEventListener('click', e => {
+        if (e.target.classList.contains('actions-dropdown-btn')) {
+          const dropdown = e.target.nextElementSibling;
+          document.querySelectorAll('.actions-dropdown-content.show').forEach(d => {
+            if (d !== dropdown) d.classList.remove('show');
+          });
+          dropdown.classList.toggle('show');
+        }
       });
     });
   }
@@ -486,10 +481,8 @@ userNav.insertBefore(profileChip, logoutButton);
           : new Date();
         const formattedDate = orderDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
 
-        let pdfButtonHtml = '';
-        if (order.status === 'aceptado') {
-          pdfButtonHtml = `<button class="action-btn download-pdf-btn" data-id="${doc.id}">Descargar PDF</button>`;
-        }
+        orderDetailsModal.querySelector('h2').textContent = 'Detalles del Pedido';
+        orderDetailsModal.querySelector('.close-button').style.display = 'block';
 
         modalOrderDetails.innerHTML = `
           <div class="ticket-logo-container">
@@ -504,20 +497,8 @@ userNav.insertBefore(profileChip, logoutButton);
             <p><strong>Lugar de Entrega:</strong> ${order.deliveryLocation || '-'}</p>
             <p><strong>Estado:</strong> <span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></p>
           </div>
-          <div class="action-buttons" style="margin-top: 1rem;">
-            ${pdfButtonHtml}
-          </div>
         `;
-
         openModal(orderDetailsModal, { autoFocusSelector: '.close-button' });
-
-        const downloadBtn = modalOrderDetails.querySelector('.download-pdf-btn');
-        if (downloadBtn) {
-          downloadBtn.addEventListener('click', (e) => {
-            downloadOrderPdf(e.target.dataset.id);
-          });
-        }
-
       } else {
         alert('No se encontraron detalles para este pedido.');
       }
@@ -558,8 +539,6 @@ userNav.insertBefore(profileChip, logoutButton);
   }
 
   function rejectOrder(orderId) {
-    if (confirm('¿Estás seguro de que quieres rechazar este pedido?')) {
-
     db.collection('orders').doc(orderId).update({ status: 'rechazado' })
       .then(() => {
         db.collection('orders').doc(orderId).get().then(doc => {
@@ -577,7 +556,6 @@ userNav.insertBefore(profileChip, logoutButton);
         console.error("Error al rechazar pedido: ", error);
         alert('Hubo un error al rechazar el pedido.');
       });
-    }
   }
 
   // --- NOTIFICACIONES ---
@@ -602,6 +580,12 @@ userNav.insertBefore(profileChip, logoutButton);
             let actionsHtml = `
               <button class="mark-as-read-btn" data-notification-id="${doc.id}">Marcar como leído</button>
             `;
+
+            if (notification.orderId) {
+              actionsHtml += `
+                <button class="download-pdf-btn" data-order-id="${notification.orderId}">Descargar PDF</button>
+              `;
+            }
 
             notificationEl.innerHTML = `
               <p>${notification.message}</p>
