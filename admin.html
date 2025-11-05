@@ -3,184 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin - BZ Online</title>
+  <title>Panel del Vendedor - BZ Online</title>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <a href="catalogo.html">
-                <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo de la Tienda" class="logo-img">
-                <h1>BZ Online</h1>
-            </a>
-        </div>
-        
-        <!-- Desktop Navigation -->
-        <nav class="user-info" id="main-nav">
-            <!-- Profile Chip will be injected here by JS -->
-            <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
-            <div class="icon-container">
-                <div id="notification-bell" class="notification-bell" title="Notificaciones">
-                    <i class="bell-icon">&#128276;</i>
-                    <span id="notification-count" class="notification-count" style="display:none;">0</span>
-                    <div id="notification-dropdown" class="notification-dropdown" style="display:none;"></div>
-                </div>
-                <div id="cart-icon" class="cart-icon-container">
-                    <i class="cart-icon">&#128722;</i>
-                    <span id="cart-count" class="cart-count" style="display:none;">0</span>
-                </div>
-            </div>
-            <button id="logout-button">Cerrar Sesión</button>
-        </nav>
-
-        <!-- Hamburger Menu Button -->
-        <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </header>
-
-    <!-- Sidebar Navigation (for mobile) -->
-    <div id="nav-sidebar" class="nav-sidebar">
-        <div class="sidebar-header">
-            <h2>Menú</h2>
-            <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
-        </div>
-        <div class="sidebar-content">
-            <!-- Sidebar items will be a clone of #main-nav -->
-        </div>
+  <header>
+    <div class="logo-container">
+      <a href="catalogo.html">
+        <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo" class="logo-img">
+        <h1>BZ Online</h1>
+      </a>
     </div>
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <nav class="user-info" id="main-nav">
+      <!-- Solo perfil, notificaciones y logout -->
+      <div id="profile-chip-container"></div>
+
+      <div class="icon-container">
+        <div id="notification-bell" class="notification-bell" title="Notificaciones">
+          <i class="bell-icon">&#128276;</i>
+          <span id="notification-count" class="notification-count" style="display:none;">0</span>
+          <div id="notification-dropdown" class="notification-dropdown" style="display:none;"></div>
+        </div>
+      </div>
+
+      <button id="logout-button">Cerrar Sesión</button>
+
+      <!-- Botón de menú offcanvas -->
+      <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Menú off-canvas -->
+  <aside id="offcanvas-menu" class="offcanvas-menu">
+    <div class="offcanvas-header">
+      <h2>Panel del Vendedor</h2>
+      <button id="close-offcanvas" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="offcanvas-body">
+      <button class="offcanvas-link" data-tab="pedidos">Pedidos</button>
+      <button class="offcanvas-link active" data-tab="productos">Mis Productos</button>
+      <button class="offcanvas-link" data-tab="nuevo-producto">Añadir Producto</button>
+    </div>
+  </aside>
+  <div id="offcanvas-overlay" class="offcanvas-overlay"></div>
 
   <main class="container">
-    <div class="tabs-container">
-      <button class="tabs-toggle" id="tabs-toggle" type="button">Menú de Vendedor</button>
+    <!-- Contenido de pestañas -->
+    <section id="pedidos" class="tab-content">
+      <h2>Pedidos Recibidos</h2>
+      <div id="orders-list"></div>
+    </section>
 
-      <div class="tabs" id="tabs-nav" role="tablist" aria-label="Secciones">
-        <button class="tab-link" data-tab="pedidos" role="tab" aria-controls="pedidos">Pedidos</button>
-        <button class="tab-link active" data-tab="productos" role="tab" aria-controls="productos" aria-selected="true">Mis Productos</button>
-        <button class="tab-link" data-tab="nuevo-producto" role="tab" aria-controls="nuevo-producto">Añadir Producto</button>
-      </div>
-
-      <!-- Pedidos -->
-      <div id="pedidos" class="tab-content" role="tabpanel" aria-labelledby="pedidos">
-        <div class="pending-orders-header">
-        <h2>Pedidos Recibidos</h2>
+    <section id="productos" class="tab-content active">
+      <h2>Mis Productos</h2>
+      <div class="carousel" id="my-products-carousel">
+        <button class="carousel-btn prev">‹</button>
+        <div class="carousel-viewport">
+          <div id="my-products-list" class="carousel-track product-grid"></div>
         </div>
-        <div id="orders-list"></div>
+        <button class="carousel-btn next">›</button>
       </div>
+    </section>
 
-      <!-- Mis productos (carrusel) -->
-      <div id="productos" class="tab-content active" role="tabpanel" aria-labelledby="productos">
-        <div class="carousel" id="my-products-carousel">
-          <button class="carousel-btn prev" type="button" aria-label="Anterior">‹</button>
-
-          <div class="carousel-viewport" aria-roledescription="carrusel">
-            <!-- admin.js inyecta aquí las tarjetas -->
-            <div id="my-products-list" class="carousel-track product-grid"></div>
-          </div>
-
-          <button class="carousel-btn next" type="button" aria-label="Siguiente">›</button>
-        </div>
-
-        <div class="carousel-dots" id="my-products-dots" aria-label="Paginación del carrusel"></div>
-      </div>
-
-      <!-- Añadir producto -->
-      <div id="nuevo-producto" class="tab-content" role="tabpanel" aria-labelledby="nuevo-producto">
-        <form id="add-product-form" class="modern-form" novalidate>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="product-name">Nombre del Producto</label>
-              <input type="text" id="product-name" required/>
-            </div>
-            <div class="form-group">
-              <label for="product-price">Precio (MXN)</label>
-              <input type="number" id="product-price" step="0.01" required/>
-            </div>
-          </div>
-
+    <section id="nuevo-producto" class="tab-content">
+      <h2>Añadir Nuevo Producto</h2>
+      <form id="add-product-form" class="modern-form" novalidate>
+        <div class="form-row">
           <div class="form-group">
-            <label for="product-desc">Descripción</label>
-            <textarea id="product-desc" rows="4" required></textarea>
+            <label for="product-name">Nombre del Producto</label>
+            <input type="text" id="product-name" required/>
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="product-size">Talla</label>
-              <select id="product-size" class="modern-select" required>
-                <option value="">Selecciona una talla</option>
-                <option value="CH">CH</option>
-                <option value="M">M</option>
-                <option value="G">G</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="product-gender">Género</label>
-              <select id="product-gender" class="modern-select" required>
-                <option value="">Selecciona el género</option>
-                <option value="Dama">Dama</option>
-                <option value="Caballero">Caballero</option>
-              </select>
-            </div>
-          </div>
-
           <div class="form-group">
-            <label for="image-upload">Imagen del Producto</label>
-            <div class="image-upload-wrapper">
-              <input type="file" id="image-upload" accept="image/*" class="image-upload-input"/>
-              <label for="image-upload" class="image-upload-label">
-                <span>Seleccionar archivo</span>
-              </label>
-              <small id="image-upload-status"></small>
-            </div>
-            <input type="hidden" id="product-image" name="product-image" required/>
+            <label for="product-price">Precio (MXN)</label>
+            <input type="number" id="product-price" step="0.01" required/>
           </div>
-
-          <button type="submit" class="submit-btn">Agregar Producto</button>
-        </form>
-      </div>
-    </div>
-  </main>
-
-  <!-- Modal Detalles Pedido -->
-  <div id="order-details-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="order-details-title">
-    <div class="modal-content">
-      <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
-      <h2 id="order-details-title">Detalles del Pedido</h2>
-      <div id="modal-order-details"></div>
-    </div>
-  </div>
-
-  <!-- Modal Editar Producto -->
-  <div id="edit-product-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-product-title">
-    <div class="modal-content">
-      <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
-      <h2 id="edit-product-title">Editar Producto</h2>
-
-      <form id="edit-product-form" class="modern-form" novalidate>
-        <input type="hidden" id="edit-product-id"/>
-
-        <div class="form-group">
-          <label for="edit-product-name">Nombre del Producto</label>
-          <input type="text" id="edit-product-name" required/>
         </div>
 
         <div class="form-group">
-          <label for="edit-product-price">Precio (MXN)</label>
-          <input type="number" id="edit-product-price" step="0.01" required/>
-        </div>
-
-        <div class="form-group">
-          <label for="edit-product-desc">Descripción</label>
-          <textarea id="edit-product-desc" rows="4" required></textarea>
+          <label for="product-desc">Descripción</label>
+          <textarea id="product-desc" rows="4" required></textarea>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="edit-product-size">Talla</label>
-            <select id="edit-product-size" class="modern-select" required>
+            <label for="product-size">Talla</label>
+            <select id="product-size" required>
               <option value="">Selecciona una talla</option>
               <option value="CH">CH</option>
               <option value="M">M</option>
@@ -188,9 +98,9 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="edit-product-gender">Género</label>
-            <select id="edit-product-gender" class="modern-select" required>
-              <option value="">Selecciona el género</option>
+            <label for="product-gender">Género</label>
+            <select id="product-gender" required>
+              <option value="">Selecciona género</option>
               <option value="Dama">Dama</option>
               <option value="Caballero">Caballero</option>
             </select>
@@ -198,22 +108,56 @@
         </div>
 
         <div class="form-group">
-          <label for="edit-product-status">Estado del Producto</label>
-          <select id="edit-product-status" class="modern-select" required>
+          <label for="image-upload">Imagen del Producto</label>
+          <div class="image-upload-wrapper">
+            <input type="file" id="image-upload" accept="image/*"/>
+            <label for="image-upload" class="image-upload-label"><span>Seleccionar archivo</span></label>
+            <small id="image-upload-status"></small>
+          </div>
+          <input type="hidden" id="product-image" required/>
+        </div>
+
+        <button type="submit" class="submit-btn">Agregar Producto</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- Modal de editar producto -->
+  <div id="edit-product-modal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+      <h2>Editar Producto</h2>
+
+      <form id="edit-product-form" class="modern-form">
+        <input type="hidden" id="edit-product-id"/>
+
+        <div class="form-group">
+          <label>Nombre del Producto</label>
+          <input type="text" id="edit-product-name" required/>
+        </div>
+
+        <div class="form-group">
+          <label>Precio (MXN)</label>
+          <input type="number" id="edit-product-price" step="0.01" required/>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="edit-product-desc" rows="4" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-product-status">Estado</label>
+          <select id="edit-product-status" required>
             <option value="disponible">Disponible</option>
             <option value="vendido">Vendido</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="edit-image-upload">Imagen del Producto</label>
-          <div class="image-upload-wrapper">
-            <input type="file" id="edit-image-upload" accept="image/*" class="image-upload-input"/>
-            <label for="edit-image-upload" class="image-upload-label">
-              <span>Seleccionar archivo</span>
-            </label>
-            <small id="edit-image-upload-status"></small>
-          </div>
+          <label>Imagen</label>
+          <input type="file" id="edit-image-upload" accept="image/*"/>
+          <small id="edit-image-upload-status"></small>
           <input type="hidden" id="edit-product-image"/>
         </div>
 
@@ -222,18 +166,8 @@
     </div>
   </div>
 
-  <div id="cart-modal" class="cart-modal">
-    <div class="cart-modal-content">
-        <span class="close-cart-btn">&times;</span>
-        <h2>Mi Carrito</h2>
-        <div id="cart-items-container" class="cart-items-container">
-            <!-- Cart items will be loaded here -->
-        </div>
-    </div>
-  </div>
-
   <footer>
-    <p>&copy; 2025 Tu Tienda de Ropa</p>
+    <p>&copy; 2025 BZ Online</p>
   </footer>
 
   <!-- Firebase -->
@@ -248,6 +182,5 @@
   <!-- App -->
   <script src="js/firebase-config.js"></script>
   <script src="js/admin.js"></script>
-  <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,701 +1,215 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // --- ELEMENTOS DE LA UI ---
-  const logoutButton = document.getElementById('logout-button');
-  const viewCatalogLink = document.getElementById('view-catalog-link');
-  const addProductForm = document.getElementById('add-product-form');
-  const myProductsList = document.getElementById('my-products-list');
-  const myRatingsEl = document.getElementById('my-ratings');
-  const ordersList = document.getElementById('orders-list');
-  const notificationBell = document.getElementById('notification-bell');
-  const notificationCount = document.getElementById('notification-count');
-  const imageUploadInput = document.getElementById('image-upload');
-  const imageUploadStatus = document.getElementById('image-upload-status');
-  const productImageHiddenInput = document.getElementById('product-image');
-  const notificationDropdown = document.getElementById('notification-dropdown');
+  const logoutButton = document.getElementById("logout-button");
+  const notificationBell = document.getElementById("notification-bell");
+  const notificationCount = document.getElementById("notification-count");
+  const notificationDropdown = document.getElementById("notification-dropdown");
+  const profileChipContainer = document.getElementById("profile-chip-container");
 
-  // Carrusel
-  const myProductsCarousel = document.getElementById('my-products-carousel');
-  const myProductsViewport = myProductsCarousel.querySelector('.carousel-viewport');
-  const prevButton = myProductsCarousel.querySelector('.prev');
-  const nextButton = myProductsCarousel.querySelector('.next');
+  const offcanvas = document.getElementById("offcanvas-menu");
+  const offcanvasOverlay = document.getElementById("offcanvas-overlay");
+  const hamburger = document.getElementById("hamburger-menu");
+  const closeOffcanvas = document.getElementById("close-offcanvas");
 
-  // Modales
-  const orderDetailsModal = document.getElementById('order-details-modal');
-  const closeOrderModalBtn = orderDetailsModal.querySelector('.close-button');
-  const modalOrderDetails = document.getElementById('modal-order-details');
+  const tabs = document.querySelectorAll(".offcanvas-link");
+  const contents = document.querySelectorAll(".tab-content");
 
-  const editProductModal = document.getElementById('edit-product-modal');
-  const closeEditModalBtn = editProductModal.querySelector('.close-button');
-  const editProductForm = document.getElementById('edit-product-form');
-  const editProductId = document.getElementById('edit-product-id');
-  const editProductName = document.getElementById('edit-product-name');
-  const editProductPrice = document.getElementById('edit-product-price');
-  const editProductDesc = document.getElementById('edit-product-desc');
-  const editImageUpload = document.getElementById('edit-image-upload');
-  const editImageUploadStatus = document.getElementById('edit-image-upload-status');
-  const editProductImage = document.getElementById('edit-product-image');
+  let currentUser = null;
 
-  let currentUser;
-
-  // --- HELPERS DE MODAL (accesibles, sin desbordes) ---
-  let lastFocusedElement = null;
-  let activeKeydownHandler = null;
-
-  function getFocusable(container) {
-    return container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    );
+  // Toggle del menú offcanvas
+  hamburger.addEventListener("click", () => {
+    offcanvas.classList.add("open");
+    offcanvasOverlay.classList.add("show");
+  });
+  closeOffcanvas.addEventListener("click", closeMenu);
+  offcanvasOverlay.addEventListener("click", closeMenu);
+  function closeMenu() {
+    offcanvas.classList.remove("open");
+    offcanvasOverlay.classList.remove("show");
   }
 
-  function openModal(el, { autoFocusSelector } = {}) {
-    el.style.display = 'flex';
-    document.body.classList.add('modal-open'); // bloquea scroll del fondo
+  // Navegación entre secciones
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      contents.forEach((c) => c.classList.remove("active"));
+      document.getElementById(tab.dataset.tab).classList.add("active");
+      closeMenu();
+    });
+  });
 
-    lastFocusedElement = document.activeElement;
-    const focusables = getFocusable(el);
-    const first = focusables[0];
-    const toFocus = autoFocusSelector ? el.querySelector(autoFocusSelector) : first;
-    if (toFocus) toFocus.focus();
-
-    // cerrar con click fuera
-    el.addEventListener('mousedown', onBackdropClick);
-    function onBackdropClick(e) {
-      if (e.target === el) closeModal(el);
-    }
-    el._onBackdropClick = onBackdropClick;
-
-    // cerrar con ESC + trampa de foco
-    activeKeydownHandler = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closeModal(el);
-      } else if (e.key === 'Tab') {
-        const items = Array.from(getFocusable(el));
-        if (!items.length) return;
-        const firstEl = items[0];
-        const lastEl = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === firstEl) {
-          e.preventDefault(); lastEl.focus();
-        } else if (!e.shiftKey && document.activeElement === lastEl) {
-          e.preventDefault(); firstEl.focus();
-        }
+  // Auth
+  auth.onAuthStateChanged((user) => {
+    if (!user) return (window.location.href = "index.html");
+    db.collection("users").doc(user.uid).get().then((doc) => {
+      if (!doc.exists || doc.data().role !== "vendedor") {
+        return (window.location.href = "index.html");
       }
-    };
-    document.addEventListener('keydown', activeKeydownHandler);
-  }
-
-  function closeModal(el) {
-    el.style.display = 'none';
-    document.body.classList.remove('modal-open');
-
-    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
-      lastFocusedElement.focus();
-    }
-    if (el._onBackdropClick) {
-      el.removeEventListener('mousedown', el._onBackdropClick);
-      el._onBackdropClick = null;
-    }
-    if (activeKeydownHandler) {
-      document.removeEventListener('keydown', activeKeydownHandler);
-      activeKeydownHandler = null;
-    }
-  }
-
-  // --- LÓGICA DE PESTAÑAS ---
-  const tabs = document.querySelectorAll('.tab-link');
-  const tabContents = document.querySelectorAll('.tab-content');
-  const tabsToggle = document.getElementById('tabs-toggle');
-  const tabsNav = document.getElementById('tabs-nav');
-
-  if (tabsToggle && tabsNav) {
-    tabsToggle.addEventListener('click', () => {
-      tabsNav.classList.toggle('active');
-    });
-
-    tabsNav.addEventListener('click', (e) => {
-      if (e.target.classList.contains('tab-link')) {
-        tabsNav.classList.remove('active');
-      }
-    });
-  }
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(item => item.classList.remove('active'));
-      tab.classList.add('active');
-
-      tabContents.forEach(content => content.classList.remove('active'));
-      document.getElementById(tab.dataset.tab).classList.add('active');
+      currentUser = { ...user, ...doc.data() };
+      renderProfileChip();
+      loadProducts();
+      loadOrders();
+      loadNotifications();
     });
   });
 
-  // --- INICIALIZACIÓN Y AUTH GUARD ---
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      db.collection('users').doc(user.uid).get().then(doc => {
-        if (doc.exists && doc.data().role === 'vendedor') {
-          const userData = doc.data();
-          currentUser = { ...user, ...userData };
-          if (viewCatalogLink) {
-            viewCatalogLink.style.display = 'none'; // Ocultar "Ver Catálogo"
-          }
+  function renderProfileChip() {
+    const chip = document.createElement("a");
+    chip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
+    chip.className = "profile-chip";
+    chip.innerHTML = `
+      <img src="${currentUser.photoUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.username)}" alt="perfil">
+      <span>${currentUser.username}</span>
+    `;
+    profileChipContainer.appendChild(chip);
+  }
 
-
-         // ... dentro de onAuthStateChanged, cuando el role === 'vendedor'
-const userNav = document.getElementById('main-nav');
-const profileChip = document.createElement('a');
-profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
-profileChip.className = 'profile-chip';
-profileChip.innerHTML = `
-  <img class="chip-avatar" src="${currentUser.photoUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.username) + '&background=2c2c2c&color=e0e0e0'}" alt="Perfil">
-  <span class="chip-name">${currentUser.username}</span>
-`;
-
-userNav.insertBefore(profileChip, logoutButton);
-
-          const sidebarContent = document.querySelector('#nav-sidebar .sidebar-content .sidebar-nav');
-          if (sidebarContent) {
-              sidebarContent.insertBefore(profileChip.cloneNode(true), sidebarContent.firstChild);
-          }
-
-          loadProducts(currentUser.uid);
-          loadRatings(currentUser.uid);
-          loadOrders(currentUser.uid);
-          loadNotifications(currentUser.uid);
-        } else {
-          // Si no es vendedor, redirigir a la página principal para evitar bucles.
-          window.location.href = 'index.html';
-        }
-      });
-    } else {
-      window.location.href = 'index.html';
+  // Logout
+  logoutButton.addEventListener("click", () => {
+    if (confirm("¿Cerrar sesión?")) {
+      auth.signOut().then(() => (window.location.href = "index.html"));
     }
   });
 
-  // --- LOGOUT ---
-  logoutButton.addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('cart');
-        auth.signOut().then(() => window.location.href = 'index.html');
-    }
-  });
+  // -------------------- PRODUCTOS --------------------
+  const CLOUD_NAME = "dvdctjltz";
+  const UPLOAD_PRESET = "catalogo-productos";
+  const imageUpload = document.getElementById("image-upload");
+  const imageStatus = document.getElementById("image-upload-status");
+  const imageHidden = document.getElementById("product-image");
+  const addForm = document.getElementById("add-product-form");
+  const myProductsList = document.getElementById("my-products-list");
 
-  // --- SUBIR IMAGEN A CLOUDINARY ---
-  const CLOUD_NAME = 'dvdctjltz'; // <-- tu cloud
-  const UPLOAD_PRESET = 'catalogo-productos'; // <-- tu preset
-
-  imageUploadInput.addEventListener('change', e => {
+  imageUpload.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-
-    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-    
-    imageUploadStatus.textContent = 'Subiendo imagen...';
-    productImageHiddenInput.value = '';
-
-    fetch(url, { method: 'POST', body: formData })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Cloudinary response:', data);
-        if (data.secure_url) {
-          imageUploadStatus.textContent = '¡Imagen subida con éxito!';
-          imageUploadStatus.style.color = 'green';
-          productImageHiddenInput.value = data.secure_url;
-        } else {
-          throw new Error('La URL segura no se encontró en la respuesta de Cloudinary.');
-        }
-      })
-      .catch(error => {
-        console.error('Error al subir la imagen a Cloudinary:', error);
-        imageUploadStatus.textContent = 'Error al subir la imagen. Intenta de nuevo.';
-        imageUploadStatus.style.color = 'red';
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+    imageStatus.textContent = "Subiendo...";
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: formData,
       });
+      const data = await res.json();
+      imageHidden.value = data.secure_url;
+      imageStatus.textContent = "¡Subida exitosa!";
+    } catch {
+      imageStatus.textContent = "Error al subir imagen.";
+    }
   });
 
-  // --- AÑADIR PRODUCTOS ---
-  addProductForm.addEventListener('submit', e => {
+  addForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    console.log('Submitting product form...');
-
-    const productName = document.getElementById('product-name').value;
-    const productDesc = document.getElementById('product-desc').value;
-    const productPrice = parseFloat(document.getElementById('product-price').value);
-    const productSize = document.getElementById('product-size').value;
-    const productGender = document.getElementById('product-gender').value;
-    const imageUrl = document.getElementById('product-image').value;
-
-    if (!imageUrl) {
-      alert('Por favor, espera a que la imagen termine de subir.');
-      return;
-    }
-
-    db.collection('products').add({
-      name: productName,
-      description: productDesc,
-      price: productPrice,
-      size: productSize,
-      gender: productGender,
-      imageUrl: imageUrl,
+    if (!imageHidden.value) return alert("Espera a que la imagen se suba.");
+    const product = {
+      name: document.getElementById("product-name").value,
+      description: document.getElementById("product-desc").value,
+      price: parseFloat(document.getElementById("product-price").value),
+      size: document.getElementById("product-size").value,
+      gender: document.getElementById("product-gender").value,
+      imageUrl: imageHidden.value,
       sellerId: currentUser.uid,
       sellerUsername: currentUser.username,
-      status: 'disponible'
-    }).then(() => {
-      addProductForm.reset();
-      imageUploadStatus.textContent = '';
-      alert('¡Producto añadido con éxito!');
-    }).catch(error => {
-      console.error("Error al añadir producto: ", error);
-      alert('Hubo un error al guardar el producto.');
-    });
-  });
-
-  // --- CARGAR PRODUCTOS DEL VENDEDOR ---
-  function loadProducts(sellerId) {
-    db.collection('products').where('sellerId', '==', sellerId).onSnapshot(snapshot => {
-      myProductsList.innerHTML = '';
-      if (snapshot.empty) {
-        myProductsList.innerHTML = '<p>Aún no has añadido ningún producto.</p>';
-        return;
-      }
-      myProductsList.className = 'product-grid';
-      snapshot.forEach(doc => {
-        const product = doc.data();
-        const productId = doc.id;
-        const productEl = document.createElement('div');
-        productEl.className = 'product-card';
-        productEl.innerHTML = `
-          <img src="${product.imageUrl}" alt="${product.name}">
-          <div class="product-card-content">
-            <h3>${product.name}</h3>
-            <p class="price">$${product.price.toFixed(2)}</p>
-            <p>${product.description}</p>
-          </div>
-          <div class="product-card-actions">
-            <button class="action-btn edit-btn" data-product-id="${productId}">Editar</button>
-            <button class="action-btn delete-btn" data-product-id="${productId}">Eliminar</button>
-          </div>
-        `;
-        myProductsList.appendChild(productEl);
-      });
-
-      myProductsList.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const productId = e.target.dataset.productId;
-          deleteProduct(productId);
-        });
-      });
-
-      myProductsList.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const productId = e.target.dataset.productId;
-          openEditModal(productId);
-        });
-      });
-    });
-  }
-
-  // --- EDITAR PRODUCTO ---
-  function openEditModal(productId) {
-    db.collection('products').doc(productId).get().then(doc => {
-      if (doc.exists) {
-        const product = doc.data();
-        editProductId.value = doc.id;
-        editProductName.value = product.name;
-        editProductPrice.value = product.price;
-        editProductDesc.value = product.description;
-        editProductImage.value = product.imageUrl;
-        document.getElementById('edit-product-size').value = product.size;
-        document.getElementById('edit-product-gender').value = product.gender;
-        document.getElementById('edit-product-status').value = product.status || 'disponible';
-
-        openModal(editProductModal, { autoFocusSelector: '#edit-product-name' });
-      }
-    });
-  }
-
-  closeEditModalBtn.addEventListener('click', () => {
-    closeModal(editProductModal);
-  });
-
-  editProductForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const productId = editProductId.value;
-    const updatedProduct = {
-      name: editProductName.value,
-      price: parseFloat(editProductPrice.value),
-      description: editProductDesc.value,
-      imageUrl: editProductImage.value,
-      size: document.getElementById('edit-product-size').value,
-      gender: document.getElementById('edit-product-gender').value,
-      status: document.getElementById('edit-product-status').value
+      status: "disponible",
     };
-
-    db.collection('products').doc(productId).update(updatedProduct).then(() => {
-      alert('Producto actualizado con éxito');
-      closeModal(editProductModal);
-    }).catch(error => {
-      console.error('Error al actualizar el producto: ', error);
-      alert('Hubo un error al actualizar el producto.');
+    db.collection("products").add(product).then(() => {
+      alert("Producto agregado.");
+      addForm.reset();
+      imageStatus.textContent = "";
     });
   });
 
-  editImageUpload.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-
-    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-    
-    editImageUploadStatus.textContent = 'Subiendo imagen...';
-    editProductImage.value = '';
-
-    fetch(url, { method: 'POST', body: formData })
-      .then(response => response.json())
-      .then(data => {
-        if (data.secure_url) {
-          editImageUploadStatus.textContent = '¡Imagen subida con éxito!';
-          editImageUploadStatus.style.color = 'green';
-          editProductImage.value = data.secure_url;
-        } else {
-          throw new Error('La URL segura no se encontró en la respuesta de Cloudinary.');
-        }
-      })
-      .catch(error => {
-        console.error('Error al subir la imagen a Cloudinary:', error);
-        editImageUploadStatus.textContent = 'Error al subir la imagen. Intenta de nuevo.';
-        editImageUploadStatus.style.color = 'red';
-      });
-  });
-
-  function deleteProduct(productId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-      db.collection('products').doc(productId).delete()
-        .then(() => console.log('Producto eliminado'))
-        .catch(error => console.error('Error al eliminar el producto: ', error));
-    }
-  }
-
-  // --- CALIFICACIONES ---
-  function loadRatings(sellerId) {
-    db.collection('ratings').where('sellerId', '==', sellerId).onSnapshot(snapshot => {
-      myRatingsEl.innerHTML = '';
-      if (snapshot.empty) {
-        myRatingsEl.innerHTML = '<p>Aún no tienes calificaciones.</p>';
-        return;
-      }
-      let totalStars = 0;
-      let ratingCount = 0;
-      snapshot.forEach(doc => {
-        const rating = doc.data();
-        totalStars += rating.stars;
-        ratingCount++;
-      });
-      const averageRating = (totalStars / ratingCount).toFixed(1);
-      const averageEl = document.createElement('div');
-      averageEl.className = 'average-rating-summary';
-      averageEl.innerHTML = `
-        <h3>Promedio de Calificaciones</h3>
-        <div class="average-stars">${averageRating} ★</div>
-        <p>Basado en ${ratingCount} calificaciones</p>
-      `;
-      myRatingsEl.appendChild(averageEl);
-    });
-  }
-
-  // --- PEDIDOS ---
-  function loadOrders(sellerId) {
-    db.collection('orders').where('sellerId', '==', sellerId).onSnapshot(snapshot => {
-      ordersList.innerHTML = '';
-      if (snapshot.empty) {
-        ordersList.innerHTML = '<p>No tienes pedidos.</p>';
-        return;
-      }
-      const table = document.createElement('table');
-      table.className = 'orders-table';
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Cliente</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      `;
-      const tbody = table.querySelector('tbody');
-      snapshot.forEach(doc => {
-        const order = doc.data();
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td data-label="Producto">${order.productName}</td>
-          <td data-label="Cliente">${order.customerUsername}</td>
-          <td data-label="Estado"><span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></td>
-          <td data-label="Acciones" class="actions-cell">
-            <button class="actions-dropdown-btn">⋮</button>
-            <div class="actions-dropdown-content">
-              <button class="action-btn details-btn" data-id="${doc.id}">Detalles</button>
-              ${(order.status === 'pendiente' || !order.status) ? 
-                `<button class="action-btn accept-btn" data-id="${doc.id}">Aceptar</button>
-                 <button class="action-btn reject-btn" data-id="${doc.id}">Rechazar</button>` : ''
-              }
-              <button class="action-btn delete-btn" data-id="${doc.id}">Eliminar</button>
+  function loadProducts() {
+    db.collection("products").where("sellerId", "==", currentUser.uid)
+      .onSnapshot((snapshot) => {
+        myProductsList.innerHTML = "";
+        if (snapshot.empty) return (myProductsList.innerHTML = "<p>No hay productos.</p>");
+        snapshot.forEach((doc) => {
+          const p = doc.data();
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+            <img src="${p.imageUrl}">
+            <h3>${p.name}</h3>
+            <p>$${p.price}</p>
+            <div class="card-actions">
+              <button class="edit-btn" data-id="${doc.id}">Editar</button>
+              <button class="delete-btn" data-id="${doc.id}">Eliminar</button>
             </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
+          `;
+          myProductsList.appendChild(card);
+        });
+        myProductsList.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.onclick = () => {
+            if (confirm("¿Eliminar producto?"))
+              db.collection("products").doc(btn.dataset.id).delete();
+          };
+        });
       });
-      ordersList.appendChild(table);
+  }
 
-      ordersList.addEventListener('click', e => {
-        const target = e.target;
-        if (target.classList.contains('actions-dropdown-btn')) {
-          const dropdown = target.nextElementSibling;
-          document.querySelectorAll('.actions-dropdown-content.show').forEach(d => {
-            if (d !== dropdown) d.classList.remove('show');
-          });
-          dropdown.classList.toggle('show');
-        } else if (target.classList.contains('details-btn')) {
-            showOrderDetails(target.dataset.id);
-        } else if (target.classList.contains('accept-btn')) {
-            acceptOrder(target.dataset.id);
-        } else if (target.classList.contains('reject-btn')) {
-            rejectOrder(target.dataset.id);
-        } else if (target.classList.contains('delete-btn')) {
-            deleteOrder(target.dataset.id);
+  // -------------------- PEDIDOS --------------------
+  function loadOrders() {
+    const ordersList = document.getElementById("orders-list");
+    db.collection("orders").where("sellerId", "==", currentUser.uid)
+      .onSnapshot((snapshot) => {
+        ordersList.innerHTML = "";
+        if (snapshot.empty) return (ordersList.innerHTML = "<p>No hay pedidos.</p>");
+        snapshot.forEach((doc) => {
+          const o = doc.data();
+          const div = document.createElement("div");
+          div.className = "order-card";
+          div.innerHTML = `
+            <h4>${o.productName}</h4>
+            <p>Cliente: ${o.customerUsername}</p>
+            <p>Estado: <b>${o.status}</b></p>
+          `;
+          ordersList.appendChild(div);
+        });
+      });
+  }
+
+  // -------------------- NOTIFICACIONES --------------------
+  notificationBell.addEventListener("click", () => {
+    notificationDropdown.style.display =
+      notificationDropdown.style.display === "block" ? "none" : "block";
+  });
+
+  function loadNotifications() {
+    db.collection("notifications")
+      .where("userId", "==", currentUser.uid)
+      .where("read", "==", false)
+      .onSnapshot((snap) => {
+        const count = snap.size;
+        notificationCount.textContent = count;
+        notificationDropdown.innerHTML = "";
+        if (!count) {
+          notificationCount.style.display = "none";
+          notificationDropdown.innerHTML = "<p>Sin notificaciones.</p>";
+          return;
         }
-      });
-    });
-  }
-
-  function showOrderDetails(orderId) {
-    db.collection('orders').doc(orderId).get().then(doc => {
-      if (doc.exists) {
-        const order = doc.data();
-        const orderDate = order.createdAt?.seconds
-          ? new Date(order.createdAt.seconds * 1000)
-          : new Date();
-        const formattedDate = orderDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-
-        orderDetailsModal.querySelector('h2').textContent = 'Detalles del Pedido';
-        orderDetailsModal.querySelector('.close-button').style.display = 'block';
-
-        modalOrderDetails.innerHTML = `
-          <div class="ticket-logo-container">
-            <img src="https://res.cloudinary.com/dvdctjltz/image/upload/v1761329349/Logo_fhwezv.jpg" alt="Logo" class="ticket-logo">
-          </div>
-          <div class="order-meta">
-            <p><strong>Fecha:</strong> ${formattedDate}</p>
-          </div>
-          <div class="order-details-body">
-            <p><strong>Producto:</strong> ${order.productName}</p>
-            <p><strong>Cliente:</strong> ${order.customerUsername}</p>
-            <p><strong>Lugar de Entrega:</strong> ${order.deliveryLocation || '-'}</p>
-            <p><strong>Estado:</strong> <span class="status status-${order.status || 'pendiente'}">${order.status || 'pendiente'}</span></p>
-          </div>
-        `;
-        openModal(orderDetailsModal, { autoFocusSelector: '.close-button' });
-      } else {
-        alert('No se encontraron detalles para este pedido.');
-      }
-    });
-  }
-
-  closeOrderModalBtn.addEventListener('click', () => closeModal(orderDetailsModal));
-
-  function deleteOrder(orderId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este pedido? Esta acción no se puede deshacer.')) {
-      db.collection('orders').doc(orderId).delete()
-        .then(() => alert('Pedido eliminado con éxito.'))
-        .catch(error => {
-          console.error('Error al eliminar pedido: ', error);
-          alert('Hubo un error al eliminar el pedido.');
+        notificationCount.style.display = "block";
+        snap.forEach((doc) => {
+          const n = doc.data();
+          const div = document.createElement("div");
+          div.className = "notification-item";
+          div.innerHTML = `
+            <p>${n.message}</p>
+            <button class="mark-read" data-id="${doc.id}">Marcar leído</button>
+          `;
+          notificationDropdown.appendChild(div);
         });
-    }
-  }
-
-  function acceptOrder(orderId) {
-    db.collection('orders').doc(orderId).update({ status: 'aceptado' })
-      .then(() => {
-        db.collection('orders').doc(orderId).get().then(doc => {
-          const order = doc.data();
-          db.collection('notifications').add({
-            userId: order.customerId,
-            message: `Tu pedido de "${order.productName}" ha sido aceptado.`,
-            orderId: orderId,
-            read: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          alert('Pedido aceptado y cliente notificado.');
-        });
-      }).catch(error => {
-        console.error("Error al aceptar pedido: ", error);
-        alert('Hubo un error al aceptar el pedido.');
       });
   }
 
-  function rejectOrder(orderId) {
-    db.collection('orders').doc(orderId).update({ status: 'rechazado' })
-      .then(() => {
-        db.collection('orders').doc(orderId).get().then(doc => {
-          const order = doc.data();
-          db.collection('notifications').add({
-            userId: order.customerId,
-            message: `El vendedor rechazó su pedido de "${order.productName}". Por favor, contacta al vendedor para más detalles.`,
-            orderId: orderId,
-            read: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          alert('Pedido rechazado y cliente notificado.');
-        });
-      }).catch(error => {
-        console.error("Error al rechazar pedido: ", error);
-        alert('Hubo un error al rechazar el pedido.');
-      });
-  }
-
-  // --- NOTIFICACIONES ---
-  notificationBell.addEventListener('click', () => {
-    notificationDropdown.style.display = notificationDropdown.style.display === 'block' ? 'none' : 'block';
-  });
-
-  function loadNotifications(sellerId) {
-    db.collection('notifications').where('userId', '==', sellerId).where('read', '==', false)
-      .onSnapshot(snapshot => {
-        const newNotificationsCount = snapshot.size;
-        notificationCount.textContent = newNotificationsCount;
-        notificationDropdown.innerHTML = '';
-
-        if (newNotificationsCount > 0) {
-          notificationCount.style.display = 'block';
-          snapshot.forEach(doc => {
-            const notification = doc.data();
-            const notificationEl = document.createElement('div');
-            notificationEl.className = 'notification-item';
-
-            let actionsHtml = `
-              <button class="mark-as-read-btn" data-notification-id="${doc.id}">Marcar como leído</button>
-            `;
-
-            if (notification.orderId) {
-              actionsHtml += `
-                <button class="download-pdf-btn" data-order-id="${notification.orderId}">Descargar PDF</button>
-              `;
-            }
-
-            notificationEl.innerHTML = `
-              <p>${notification.message}</p>
-              <div class="notification-actions">
-                ${actionsHtml}
-              </div>
-            `;
-            notificationDropdown.appendChild(notificationEl);
-          });
-        } else {
-          notificationCount.style.display = 'none';
-          notificationDropdown.innerHTML = '<p>No hay notificaciones nuevas.</p>';
-        }
-      });
-  }
-
-  notificationDropdown.addEventListener('click', e => {
-    if (e.target.classList.contains('mark-as-read-btn')) {
-      const notificationId = e.target.dataset.notificationId;
-      db.collection('notifications').doc(notificationId).update({ read: true });
-    }
-    if (e.target.classList.contains('download-pdf-btn')) {
-      const orderId = e.target.dataset.orderId;
-      downloadOrderPdf(orderId);
+  notificationDropdown.addEventListener("click", (e) => {
+    if (e.target.classList.contains("mark-read")) {
+      db.collection("notifications").doc(e.target.dataset.id).update({ read: true });
     }
   });
-
-  // --- DESCARGAR PEDIDO EN PDF ---
-  function downloadOrderPdf(orderId) {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-      console.error("jsPDF no está cargado.");
-      alert("Error: La librería para generar PDF no se ha cargado correctamente.");
-      return;
-    }
-
-    db.collection('orders').doc(orderId).get().then(doc => {
-      if (doc.exists) {
-        const order = doc.data();
-        const orderDate = order.createdAt?.seconds
-          ? new Date(order.createdAt.seconds * 1000)
-          : new Date();
-        const formattedDate = orderDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-
-        const docPDF = new jsPDF();
-
-        // Encabezado
-        docPDF.setFontSize(20);
-        docPDF.text("Detalles del Pedido", 105, 20, { align: "center" });
-
-        // Logo (si tienes uno)
-        // Reemplaza 'URL_DEL_LOGO' con la URL de tu logo
-        // docPDF.addImage('URL_DEL_LOGO', 'JPEG', 15, 10, 30, 30);
-
-        // Información del pedido
-        docPDF.setFontSize(12);
-        docPDF.text(`ID del Pedido: ${orderId}`, 15, 40);
-        docPDF.text(`Fecha: ${formattedDate}`, 15, 47);
-
-        // AutoTable para los detalles
-        docPDF.autoTable({
-          startY: 55,
-          head: [['Campo', 'Valor']],
-          body: [
-            ['Producto', order.productName],
-            ['Cliente', order.customerUsername],
-            ['Lugar de Entrega', order.deliveryLocation || '-'],
-            ['Estado', order.status || 'pendiente'],
-            ['Subtotal', `$${order.price ? order.price.toFixed(2) : 'N/A'}`],
-            ['Envío', '$0.00'],
-            ['Total', `$${order.price ? order.price.toFixed(2) : 'N/A'}`]
-          ],
-          theme: 'grid',
-          headStyles: { fillColor: [44, 62, 80] },
-        });
-
-        // Pie de página
-        const pageCount = docPDF.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          docPDF.setPage(i);
-          docPDF.setFontSize(10);
-          docPDF.text('Gracias por tu compra en BZ Online', 105, 285, { align: 'center' });
-        }
-
-        // Guardar el PDF
-        docPDF.save(`pedido-${orderId}.pdf`);
-
-      } else {
-        alert('No se encontraron detalles para este pedido.');
-      }
-    }).catch(error => {
-      console.error("Error al generar el PDF: ", error);
-      alert("Hubo un error al generar el PDF del pedido.");
-    });
-  }
-
-  prevButton.addEventListener('click', () => {
-    const cardWidth = myProductsViewport.querySelector('.product-card').offsetWidth;
-    myProductsViewport.scrollBy({ left: -cardWidth - 24, behavior: 'smooth' }); // 24 is the gap
-  });
-
-  nextButton.addEventListener('click', () => {
-    const cardWidth = myProductsViewport.querySelector('.product-card').offsetWidth;
-    myProductsViewport.scrollBy({ left: cardWidth + 24, behavior: 'smooth' }); // 24 is the gap
-  });
-
-}); // DOMContentLoaded
+});

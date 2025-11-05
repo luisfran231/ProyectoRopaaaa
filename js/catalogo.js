@@ -382,3 +382,33 @@ async function toDataURL(url) {
 
 });
 
+// --- MENÚ MÓVIL: Clonar navegación de escritorio ---
+document.addEventListener("DOMContentLoaded", () => {
+    const hamburgerMenu = document.getElementById("hamburger-menu");
+    const navSidebar = document.getElementById("nav-sidebar");
+    const sidebarOverlay = document.getElementById("sidebar-overlay");
+    const closeSidebarBtn = document.getElementById("close-sidebar-btn");
+    const sidebarContent = document.querySelector(".sidebar-content");
+    const mainNav = document.getElementById("main-nav");
+
+    // Abrir menú
+    hamburgerMenu.addEventListener("click", () => {
+        sidebarContent.innerHTML = ""; // Limpia por si acaso
+        const clone = mainNav.cloneNode(true);
+        clone.id = "sidebar-nav"; // evitar duplicados
+        sidebarContent.appendChild(clone);
+        navSidebar.classList.add("active");
+        sidebarOverlay.classList.add("active");
+        document.body.style.overflow = "hidden"; // evitar scroll detrás
+    });
+
+    // Cerrar menú
+    closeSidebarBtn.addEventListener("click", closeSidebar);
+    sidebarOverlay.addEventListener("click", closeSidebar);
+
+    function closeSidebar() {
+        navSidebar.classList.remove("active");
+        sidebarOverlay.classList.remove("active");
+        document.body.style.overflow = "auto";
+    }
+});
