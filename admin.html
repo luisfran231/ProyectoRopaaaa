@@ -29,32 +29,34 @@
 
       <button id="logout-button">Cerrar Sesión</button>
 
-      <!-- Botón de menú offcanvas -->
-      <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
-        <span></span><span></span><span></span>
-      </button>
     </nav>
   </header>
 
-  <!-- Menú off-canvas -->
-  <aside id="offcanvas-menu" class="offcanvas-menu">
-    <div class="offcanvas-header">
-      <h2>Panel del Vendedor</h2>
-      <button id="close-offcanvas" aria-label="Cerrar">&times;</button>
-    </div>
-    <div class="offcanvas-body">
-      <button class="offcanvas-link" data-tab="pedidos">Pedidos</button>
-      <button class="offcanvas-link active" data-tab="productos">Mis Productos</button>
-      <button class="offcanvas-link" data-tab="nuevo-producto">Añadir Producto</button>
-    </div>
-  </aside>
-  <div id="offcanvas-overlay" class="offcanvas-overlay"></div>
+  <nav class="admin-nav">
+    <button class="admin-nav-link secondary-button" data-tab="pedidos">Pedidos</button>
+    <button class="admin-nav-link secondary-button active" data-tab="productos">Mis Productos</button>
+    <button class="admin-nav-link secondary-button" data-tab="nuevo-producto">Añadir Producto</button>
+  </nav>
 
   <main class="container">
     <!-- Contenido de pestañas -->
     <section id="pedidos" class="tab-content">
       <h2>Pedidos Recibidos</h2>
-      <div id="orders-list"></div>
+      <div class="table-responsive">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>ID Pedido</th>
+              <th>Cliente</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <!-- Orders will be loaded here by JavaScript -->
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section id="productos" class="tab-content active">
@@ -90,7 +92,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="product-size">Talla</label>
-            <select id="product-size" required>
+            <select id="product-size" class="modern-select" required>
               <option value="">Selecciona una talla</option>
               <option value="CH">CH</option>
               <option value="M">M</option>
@@ -99,7 +101,7 @@
           </div>
           <div class="form-group">
             <label for="product-gender">Género</label>
-            <select id="product-gender" required>
+            <select id="product-gender" class="modern-select" required>
               <option value="">Selecciona género</option>
               <option value="Dama">Dama</option>
               <option value="Caballero">Caballero</option>
@@ -117,7 +119,7 @@
           <input type="hidden" id="product-image" required/>
         </div>
 
-        <button type="submit" class="submit-btn">Agregar Producto</button>
+        <button type="submit" class="primary-button">Agregar Producto</button>
       </form>
     </section>
   </main>
@@ -146,6 +148,26 @@
           <textarea id="edit-product-desc" rows="4" required></textarea>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-product-size">Talla</label>
+            <select id="edit-product-size" class="modern-select" required>
+              <option value="">Selecciona una talla</option>
+              <option value="CH">CH</option>
+              <option value="M">M</option>
+              <option value="G">G</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-product-gender">Género</label>
+            <select id="edit-product-gender" class="modern-select" required>
+              <option value="">Selecciona género</option>
+              <option value="Dama">Dama</n>
+              <option value="Caballero">Caballero</option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group">
           <label for="edit-product-status">Estado</label>
           <select id="edit-product-status" required>
@@ -161,8 +183,19 @@
           <input type="hidden" id="edit-product-image"/>
         </div>
 
-        <button type="submit" class="submit-btn">Guardar Cambios</button>
+        <button type="submit" class="primary-button">Guardar Cambios</button>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal de Detalles del Pedido -->
+  <div id="order-details-modal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+      <h2>Detalles del Pedido</h2>
+      <div id="order-details-content">
+        <!-- Order details will be loaded here by JavaScript -->
+      </div>
     </div>
   </div>
 

@@ -14,11 +14,11 @@
                 <h1>BZ Online</h1>
             </a>
         </div>
-        
-        <!-- Desktop Navigation -->
+
+        <!-- Navegación principal -->
         <nav class="user-info" id="main-nav">
-            <!-- Profile Chip will be injected here by JS -->
             <a href="admin.html" id="admin-link" style="display:none;">Panel de Vendedor</a>
+
             <div class="icon-container">
                 <div id="notification-bell" class="notification-bell" title="Notificaciones">
                     <i class="bell-icon">&#128276;</i>
@@ -30,34 +30,17 @@
                     <span id="cart-count" class="cart-count" style="display:none;">0</span>
                 </div>
             </div>
+
             <button id="logout-button">Cerrar Sesión</button>
         </nav>
 
-        <!-- Hamburger Menu Button -->
-        <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
     </header>
 
-    <!-- Sidebar Navigation (for mobile) -->
-    <div id="nav-sidebar" class="nav-sidebar">
-        <div class="sidebar-header">
-            <h2>Menú</h2>
-            <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
-        </div>
-        <div class="sidebar-content">
-            <!-- Sidebar items will be a clone of #main-nav -->
-        </div>
-    </div>
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
-
     <main class="container" id="product-detail-container">
-        <!-- Los detalles del producto se cargarán aquí -->
+        <!-- Detalles del producto -->
     </main>
 
-    <!-- Modal para seleccionar lugar de entrega -->
+    <!-- Modal de entrega -->
     <div id="delivery-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -69,48 +52,54 @@
                     <input type="radio" id="personal-address-option" name="delivery-choice" value="address">
                     <label for="personal-address-option">Dirección personal</label>
                 </div>
+
                 <div id="delivery-point-selection" class="form-group">
                     <label for="delivery-location">Punto de Entrega:</label>
                     <select id="delivery-location" name="delivery-location" class="modern-select" required>
                         <option value="">Selecciona un punto de entrega</option>
                     </select>
                 </div>
+
                 <div id="personal-address-selection" class="form-group hidden">
                     <label for="personal-address">Tu Dirección:</label>
                     <input type="text" id="personal-address" name="personal-address" class="modern-input">
                 </div>
             </div>
+
             <div class="delivery-time-grid">
-            <div class="form-group">
-                <label for="delivery-day">Día de encuentro:</label>
-                <input type="date" id="delivery-day" name="delivery-day">
+                <div class="form-group">
+                    <label for="delivery-day">Día de encuentro:</label>
+                    <input type="date" id="delivery-day" name="delivery-day">
+                </div>
+                <div class="form-group">
+                    <label for="delivery-time">Hora de encuentro:</label>
+                    <input type="time" id="delivery-time" name="delivery-time" class="modern-time-input">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="delivery-time">Hora de encuentro:</label>
-                <input type="time" id="delivery-time" name="delivery-time" class="modern-time-input">
-            </div>
-        </div>
-            <button id="confirm-order-btn">Confirmar Pedido</button>
+
+            <button id="confirm-order-btn" class="primary-button">Confirmar Pedido</button>
         </div>
     </div>
 
+    <!-- Modal de carrito -->
     <div id="cart-modal" class="cart-modal">
         <div class="cart-modal-content">
             <span class="close-cart-btn">&times;</span>
             <h2>Mi Carrito</h2>
-            <div id="cart-items-container" class="cart-items-container">
-                <!-- Cart items will be loaded here -->
-            </div>
+            <div id="cart-items-container" class="cart-items-container"></div>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2025 Tu Tienda de Ropa</p>
+        <p>&copy; 2025 BZ Online</p>
     </footer>
 
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Scripts -->
     <script src="js/firebase-config.js"></script>
     <script src="js/producto.js"></script>
     <script src="js/app.js"></script>

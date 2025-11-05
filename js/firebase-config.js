@@ -17,4 +17,4 @@ firebase.initializeApp(firebaseConfig);
 
 // Crear referencias a los servicios que usaremos
 const db = firebase.firestore();
-const storage = firebase.storage();
+

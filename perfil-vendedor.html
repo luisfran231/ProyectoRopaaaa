@@ -34,25 +34,7 @@
             <button id="logout-button">Cerrar Sesión</button>
         </nav>
 
-        <!-- Hamburger Menu Button -->
-        <button class="hamburger-menu" id="hamburger-menu" aria-label="Abrir menú">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
     </header>
-
-    <!-- Sidebar Navigation (for mobile) -->
-    <div id="nav-sidebar" class="nav-sidebar">
-        <div class="sidebar-header">
-            <h2>Menú</h2>
-            <button id="close-sidebar-btn" class="close-sidebar-btn">&times;</button>
-        </div>
-        <div class="sidebar-content">
-            <!-- Sidebar items will be a clone of #main-nav -->
-        </div>
-    </div>
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <main class="container">
        
@@ -106,7 +88,7 @@
   </div>
 </div>
 
-            <button id="edit-seller-profile-btn" class="hidden">Editar Perfil</button>
+            <button id="edit-seller-profile-btn" class="primary-button hidden">Editar Perfil</button>
         </section>
 
         <section id="calificaciones-section">
@@ -134,7 +116,7 @@
                     <label for="rating-comment">Comentario:</label>
                     <textarea id="rating-comment" rows="4"></textarea>
                 </div>
-                <button type="submit">Enviar Calificación</button>
+                <button type="submit" class="primary-button">Enviar Calificación</button>
             </form>
         </section>
 
@@ -157,7 +139,7 @@
                         <label for="edit-rating-comment">Comentario:</label>
                         <textarea id="edit-rating-comment" rows="4"></textarea>
                     </div>
-                    <button type="submit">Guardar Cambios</button>
+                    <button type="submit" class="primary-button">Guardar Cambios</button>
                 </form>
             </div>
         </div>
@@ -179,7 +161,12 @@
                     <input type="number" id="edit-product-price" step="0.01" required>
                     <label for="edit-product-image-url">URL de la Imagen:</label>
                     <input type="url" id="edit-product-image-url" required>
-                    <button type="submit">Guardar Cambios</button>
+                    <label for="edit-product-status">Estado:</label>
+                    <select id="edit-product-status" class="modern-select" required>
+                        <option value="disponible">Disponible</option>
+                        <option value="vendido">Vendido</option>
+                    </select>
+                    <button type="submit" class="primary-button">Guardar Cambios</button>
                 </form>
             </div>
         </div>
@@ -223,7 +210,7 @@
                         <input type="hidden" id="profile-image-url">
                         <img id="current-profile-picture" src="https://via.placeholder.com/100" alt="Foto de Perfil Actual" class="current-profile-picture-preview">
                     </div>
-                    <button type="submit">Guardar Cambios</button>
+                    <button type="submit" class="primary-button">Guardar Cambios</button>
                 </form>
             </div>
         </div>

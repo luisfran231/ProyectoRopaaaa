@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ====== SOLO perfil + calificaciones (sin productos) ====== */
   auth.onAuthStateChanged(async (user) => {
+    const params = new URLSearchParams(location.search);
     if (!user) { window.location.href = 'index.html'; return; }
 
     const udoc = await db.collection('users').doc(user.uid).get();
@@ -106,33 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const udata = udoc.data();
 
     currentUser = user;
+    console.log("Current User (perfil-vendedor.js):", currentUser);
+    console.log("Current User Role (perfil-vendedor.js):", udata.role);
+    console.log("Seller ID from URL (perfil-vendedor.js):", params.get('id'));
+    console.log("Current User UID (perfil-vendedor.js):", currentUser.uid);
 
-    if (udata.role === 'cliente') {
-        if (userEmailEl) userEmailEl.style.display = 'none';
-        // No profile chip for clients
-    } else if (udata.role === 'vendedor') {
-        const userNav = document.getElementById('main-nav');
-        const logoutButton = document.getElementById('logout-button');
-        const profileChip = document.createElement('a');
-        profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
-        profileChip.className = 'profile-chip';
-        profileChip.innerHTML = `
-          <img class="chip-avatar" src="${udata.photoUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(udata.username) + '&background=2c2c2c&color=e0e0e0'}" alt="Perfil">
-          <span class="chip-name">${udata.username}</span>
-        `;
-
-        if(userNav && logoutButton) {
-            userNav.insertBefore(profileChip, logoutButton);
-        }
-
-        const sidebarContent = document.querySelector('#nav-sidebar .sidebar-content .sidebar-nav');
-        if (sidebarContent) {
-            sidebarContent.insertBefore(profileChip.cloneNode(true), sidebarContent.firstChild);
-        }
-    }
-
-    const params = new URLSearchParams(location.search);
     sellerId = params.get('id') || currentUser.uid; // si no hay id, muestra tu propio perfil
+    console.log("Seller ID being viewed (perfil-vendedor.js):", sellerId);
+    console.log("Is own profile (perfil-vendedor.js):", sellerId === currentUser.uid);
 
     // Carga datos del vendedor
     loadSellerDoc(sellerId, sellerId === currentUser.uid);
@@ -147,15 +129,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Si es mi perfil, activamos botón de editar
     if (sellerId === currentUser.uid) {
       editSellerProfileBtn?.classList.remove('hidden');
+      console.log("Edit seller profile button shown.");
     } else {
       editSellerProfileBtn?.classList.add('hidden');
       // Si es un cliente viendo el perfil de otro vendedor, mostrar la sección para calificar
       if (udata.role === 'cliente') {
         db.collection('ratings').where('customerId', '==', currentUser.uid).where('sellerId', '==', sellerId).get().then(snapshot => {
+          console.log("Checking if client has already rated this seller. Snapshot empty:", snapshot.empty);
           if (snapshot.empty) {
             rateSellerSection?.classList.remove('hidden');
+            console.log("Rate seller section shown.");
+          } else {
+            console.log("Rate seller section hidden because client has already rated.");
           }
         });
+      } else {
+        console.log("Rate seller section hidden because user is not a client or is viewing their own profile.");
       }
     }
   });
@@ -221,8 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ====== Carga de doc de vendedor ====== */
   function loadSellerDoc(uid, isOwnProfile) {
+    console.log("loadSellerDoc called with UID:", uid, "and isOwnProfile:", isOwnProfile);
     db.collection('users').doc(uid).onSnapshot(doc=>{
-      if (!doc.exists) return;
+      if (!doc.exists) {
+        console.warn("Seller document does not exist for UID:", uid);
+        return;
+      }
       const u = doc.data();
 
       const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username||'Vendedor')}&background=2c2c2c&color=e0e0e0`;

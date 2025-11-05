@@ -2,13 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Elementos de la UI
-    const userDisplay = document.getElementById('user-display');
     const logoutButton = document.getElementById('logout-button');
     const productDetailContainer = document.getElementById('product-detail-container');
     const deliveryModal = document.getElementById('delivery-modal');
     const closeModalButton = document.querySelector('.close-button');
-    const deliveryOptionsContainer = document.getElementById('delivery-options');
     const confirmOrderBtn = document.getElementById('confirm-order-btn');
     const deliveryPointOption = document.getElementById('delivery-point-option');
     const personalAddressOption = document.getElementById('personal-address-option');
@@ -19,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser;
     let currentProduct;
 
-    // --- Event listeners for delivery options ---
+    // Alternar entre punto de entrega y dirección
     deliveryPointOption.addEventListener('change', () => {
         deliveryPointSelection.classList.remove('hidden');
         personalAddressSelection.classList.add('hidden');
@@ -30,30 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         deliveryPointSelection.classList.add('hidden');
     });
 
-    // --- INICIALIZACIÓN Y AUTH GUARD ---
+    // Autenticación
     auth.onAuthStateChanged(user => {
         if (user) {
             db.collection('users').doc(user.uid).get().then(doc => {
                 if (doc.exists) {
                     currentUser = { ...user, ...doc.data() };
-                    const userNav = document.getElementById('main-nav');
-                    const logoutButton = document.getElementById('logout-button');
-                    const profileChip = document.createElement('a');
-                    profileChip.href = `perfil-vendedor.html?id=${currentUser.uid}`;
-                    profileChip.className = 'profile-chip';
-                    profileChip.innerHTML = `
-                      <img class="chip-avatar" src="${currentUser.photoUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.username) + '&background=2c2c2c&color=e0e0e0'}" alt="Perfil">
-                      <span class="chip-name">${currentUser.username}</span>
-                    `;
-
-                    if(userNav && logoutButton) {
-                        userNav.insertBefore(profileChip, logoutButton);
-                    }
-
-                    const sidebarNav = document.querySelector('#nav-sidebar .sidebar-nav');
-                    if (sidebarNav) {
-                        sidebarNav.insertBefore(profileChip.cloneNode(true), sidebarNav.firstChild);
-                    }
                 } else {
                     auth.signOut();
                 }
@@ -63,13 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Cerrar sesión
     logoutButton.addEventListener('click', () => {
-        if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+        if (confirm('¿Deseas cerrar sesión?')) {
             auth.signOut().then(() => window.location.href = 'index.html');
         }
     });
 
-    // --- CARGA DEL PRODUCTO ---
+    // Cargar producto
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id');
 
@@ -102,20 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Talla: ${product.size || 'N/A'}</p>
                     <p>Género: ${product.gender || 'N/A'}</p>
                     <p>${product.description}</p>
-                    <a href="perfil-vendedor.html?id=${product.sellerId}" class="seller-link">
-                        Vendido por: ${product.sellerUsername}
-                    </a>
+                    ${product.status === 'vendido' ? '<p class="product-status sold">VENDIDO</p>' : ''}
+                    <p><strong>Vendedor:</strong> ${product.sellerUsername}</p>
                     <div class="product-actions">
-                    <button id="buy-btn">Comprar</button>
-                    <button id="add-to-cart-btn">Añadir al Carrito</button>
-                </div>
+                        <button id="buy-btn" ${product.status === 'vendido' ? 'disabled' : ''}>Comprar</button>
+                        <button id="add-to-cart-btn" ${product.status === 'vendido' ? 'disabled' : ''}>Añadir al Carrito</button>
+                    </div>
                 </div>
             </section>
         `;
     }
 
-    // --- LÓGICA DEL MODAL DE ENTREGA ---
-    // --- LÓGICA DEL MODAL DE ENTREGA Y CARRITO ---
+    // Abrir modal y añadir a carrito
     productDetailContainer.addEventListener('click', e => {
         if (e.target.id === 'buy-btn') {
             openDeliveryModal();
@@ -144,98 +122,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Modal de entrega
     closeModalButton.addEventListener('click', () => {
         deliveryModal.style.display = 'none';
     });
 
     function openDeliveryModal() {
         const deliveryLocationSelect = document.getElementById('delivery-location');
-        deliveryLocationSelect.innerHTML = '<option value="">Selecciona un punto de entrega</option>'; // Limpiar opciones
+        deliveryLocationSelect.innerHTML = '<option value="">Selecciona un punto de entrega</option>';
 
-        const specificLocations = [
-            'Punto de entrega 1 (Centro de iguala cerca del banco BBVA)',
-            'Punto de entrega 2 (Centro de iguala cerca del ayuntamiento)',
-            'Punto de entrega 3 (Centro de iguala cerca del centro joyero)'
+        const defaultLocations = [
+            'Punto 1 (Centro - BBVA)',
+            'Punto 2 (Ayuntamiento)',
+            'Punto 3 (Centro joyero)'
         ];
 
-        specificLocations.forEach(location => {
-            const optionEl = document.createElement('option');
-            optionEl.value = location;
-            optionEl.textContent = location;
-            deliveryLocationSelect.appendChild(optionEl);
+        defaultLocations.forEach(loc => {
+            const option = document.createElement('option');
+            option.value = loc;
+            option.textContent = loc;
+            deliveryLocationSelect.appendChild(option);
         });
 
-        // Fetch delivery points from Firestore
         db.collection('delivery_points').get().then(snapshot => {
             snapshot.forEach(doc => {
                 const point = doc.data();
-                const optionEl = document.createElement('option');
-                optionEl.value = point.name;
-                optionEl.textContent = point.name;
-                deliveryLocationSelect.appendChild(optionEl);
+                const option = document.createElement('option');
+                option.value = point.name;
+                option.textContent = point.name;
+                deliveryLocationSelect.appendChild(option);
             });
         });
 
-        // Pre-fill personal address
-        if (currentUser.address) {
-            personalAddress.value = currentUser.address;
-        }
+        if (currentUser?.address) personalAddress.value = currentUser.address;
 
         deliveryModal.style.display = 'flex';
     }
 
     confirmOrderBtn.addEventListener('click', () => {
-        let selectedLocation = '';
-        if (deliveryPointOption.checked) {
-            selectedLocation = document.getElementById('delivery-location').value;
-        } else if (personalAddressOption.checked) {
-            selectedLocation = personalAddress.value;
+        let deliveryLocation = deliveryPointOption.checked
+            ? document.getElementById('delivery-location').value
+            : personalAddress.value;
+
+        if (!deliveryLocation) {
+            alert('Por favor, selecciona o ingresa un lugar de entrega.');
+            return;
         }
 
-        if (selectedLocation && selectedLocation !== '') {
-            placeOrder(selectedLocation);
-        } else {
-            alert('Por favor, selecciona o ingresa un lugar de entrega.');
-        }
+        placeOrder(deliveryLocation);
     });
 
     function placeOrder(deliveryLocation) {
-        const deliveryDay = document.getElementById('delivery-day').value;
-        const deliveryTime = document.getElementById('delivery-time').value;
+        const day = document.getElementById('delivery-day').value;
+        const time = document.getElementById('delivery-time').value;
 
-        if (!deliveryDay || !deliveryTime) {
-            alert('Por favor, selecciona el día y la hora de encuentro.');
+        if (!day || !time) {
+            alert('Por favor, selecciona día y hora.');
             return;
         }
 
         db.collection('orders').add({
             productId: currentProduct.id,
             productName: currentProduct.name,
-            price: currentProduct.price, // Añadir precio al pedido
+            price: currentProduct.price,
             sellerId: currentProduct.sellerId,
             customerId: currentUser.uid,
             customerUsername: currentUser.username,
-            deliveryLocation: deliveryLocation,
-            deliveryDay: deliveryDay, // Nuevo campo
-            deliveryTime: deliveryTime, // Nuevo campo
+            deliveryLocation,
+            deliveryDay: day,
+            deliveryTime: time,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            status: 'pendiente' // Estado inicial
-        }).then((docRef) => {
-            // Notificación para el vendedor
+            status: 'pendiente'
+        }).then(docRef => {
             db.collection('notifications').add({
                 userId: currentProduct.sellerId,
-                message: `El cliente ${currentUser.username} te hizo un pedido de "${currentProduct.name}"`, 
+                message: `El cliente ${currentUser.username} pidió "${currentProduct.name}"`,
                 orderId: docRef.id,
                 read: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert(`¡Pedido de "${currentProduct.name}" realizado con éxito!`);
+            alert('¡Pedido realizado con éxito!');
             deliveryModal.style.display = 'none';
-            window.location.href = 'catalogo.html'; // Redirigir al catálogo
-        }).catch(error => {
-            console.error("Error al realizar pedido: ", error);
-            alert('Hubo un error al procesar tu pedido.');
+            window.location.href = 'catalogo.html';
+        }).catch(err => {
+            console.error(err);
+            alert('Error al procesar tu pedido.');
         });
     }
 });
