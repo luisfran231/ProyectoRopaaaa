@@ -631,11 +631,18 @@ input:focus, textarea:focus, .modern-time-input:focus, .modern-select:focus {
     background-color: var(--light-background);
 }
 
-.orders-table .action-buttons {
-    display: flex;
-    gap: 0.5rem;
-}
+    .orders-table .action-buttons {
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 0.5rem;
+        margin-top: 0.5rem; /* Add some space from the label */
+    }
 
+    .orders-table .action-buttons .action-btn {
+        width: 100%; /* Make buttons take full width */
+        padding: 0.6rem 0.8rem; /* Adjust padding */
+        font-size: 0.9rem; /* Adjust font size */
+    }
 .action-btn {
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
