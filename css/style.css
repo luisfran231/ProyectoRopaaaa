@@ -253,6 +253,45 @@ button[type="submit"]:hover {
   }
 }
 
+@media (max-width: 480px) {
+  header {
+    padding: 0.5rem 1rem; /* Adjust padding for very small screens */
+  }
+
+  header .logo-container a {
+    font-size: 1.1rem;
+  }
+
+  header .logo-container img {
+    height: 32px;
+  }
+
+  .user-info {
+    flex-direction: column; /* Stack user info elements vertically */
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .profile-chip {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .profile-chip img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .notification-bell {
+    font-size: 1.2rem;
+  }
+
+  #logout-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* --- FORMULARIOS DE LOGIN Y REGISTRO --- */
 .form-container {
     display: flex;
@@ -751,6 +790,32 @@ h2 {
     align-items: start;
 }
 
+@media (max-width: 768px) {
+    .product-detail-layout {
+        grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
+        gap: 2rem;
+    }
+
+    .product-detail-image img {
+        height: 300px; /* Adjust image height for mobile */
+    }
+
+    .product-detail-info h2 {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .product-detail-info .price {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    #buy-btn, #add-to-cart-btn {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+    }
+}
+
 .product-detail-image img {
     width: 100%;
     height: 400px; /* Fixed height for consistent image size */
@@ -1075,132 +1140,151 @@ h2 {
 
 .seller-header {
     display: flex;
+    flex-direction: column; /* Stack elements vertically on mobile */
     align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    text-align: left;
+    gap: 1rem; /* Adjusted gap */
+    margin-bottom: 1.5rem; /* Adjusted margin */
+    text-align: center; /* Center text */
     width: 100%;
-    justify-content: center;
 }
 
 .profile-picture {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--accent-light-lavender);
     box-shadow: var(--shadow);
+    margin-bottom: 1rem; /* Add margin below picture */
 }
 
 #seller-details-section h2 {
-    font-size: 2.2rem;
+    font-size: 2rem;
     color: var(--dark-text);
     margin-bottom: 0.5rem;
 }
 
 #seller-details-section p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--medium-text);
 }
 
 #seller-average-rating {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent-light-lavender);
-    margin-top: 1rem;
-}
-
-#seller-average-rating .star.filled {
-    color: #ffc107; /* Amarillo dorado para estrellas llenas */
+    font-size: 1.3rem;
+    margin-top: 0.8rem;
 }
 
 .seller-stats {
     display: flex;
+    flex-wrap: wrap; /* Allow stats to wrap */
     justify-content: center;
-    gap: 3rem;
-    margin: 2rem 0;
+    gap: 1.5rem; /* Adjusted gap */
+    margin: 1.5rem 0;
     width: 100%;
 }
 
 .stat-item {
     text-align: center;
     background: var(--light-background);
-    padding: 1rem 2rem;
+    padding: 0.8rem 1.5rem; /* Adjusted padding */
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    min-width: 150px;
+    min-width: 120px; /* Adjusted min-width */
+    flex-grow: 1; /* Allow items to grow */
 }
 
 .stat-item h4 {
-    font-size: 1.2rem;
-    color: var(--accent-light-lavender);
-    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
 }
 
 .stat-item p {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--white);
+    font-size: 1.8rem;
 }
 
 .seller-contact-info {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     text-align: left;
     width: 100%;
     max-width: 600px;
-    padding: 1.5rem;
+    padding: 1.2rem;
     background: var(--light-background);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
 }
 
 .seller-contact-info h3 {
-    font-size: 1.8rem;
-    color: var(--accent-light-lavender);
-    margin-bottom: 1rem;
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
 }
 
 .seller-contact-info p {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
-    word-break: break-all;
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
 }
 
 .seller-contact-info i {
-    font-size: 1.3rem;
-    color: var(--accent-dark-lavender);
+    font-size: 1.2rem;
 }
 
 #edit-seller-profile-btn {
-    margin-top: 2rem;
-    padding: 0.8rem 2rem;
-    font-size: 1.1rem;
-    background: var(--accent-dark-lavender);
-    color: var(--white);
-    border-radius: var(--border-radius);
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-#edit-seller-profile-btn:hover {
-    background: var(--accent-light-lavender);
-    transform: translateY(-2px);
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.8rem;
+    font-size: 1rem;
 }
 
 .current-profile-picture-preview {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-top: 1rem;
-    border: 2px solid var(--medium-text);
+    width: 80px;
+    height: 80px;
+}
+
+@media (max-width: 480px) {
+    #seller-details-section {
+        padding: 1.5rem;
+    }
+
+    .profile-picture {
+        width: 80px;
+        height: 80px;
+    }
+
+    #seller-details-section h2 {
+        font-size: 1.8rem;
+    }
+
+    .seller-stats {
+        gap: 1rem;
+    }
+
+    .stat-item {
+        padding: 0.6rem 1rem;
+        min-width: 100px;
+    }
+
+    .stat-item h4 {
+        font-size: 1rem;
+    }
+
+    .stat-item p {
+        font-size: 1.5rem;
+    }
+
+    .seller-contact-info {
+        padding: 1rem;
+    }
+
+    .seller-contact-info h3 {
+        font-size: 1.4rem;
+    }
+
+    .seller-contact-info p {
+        font-size: 0.9rem;
+    }
+
+    #edit-seller-profile-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
 }
 
 /* --- SISTEMA DE CALIFICACIÓN POR ESTRELLAS --- */
@@ -1831,18 +1915,33 @@ body.modal-open { overflow: hidden; }
 .admin-nav {
     display: flex;
     justify-content: center;
-    gap: 1.5rem; /* Increased gap for better spacing */
-    margin-top: 2rem; /* Increased margin */
-    margin-bottom: 2.5rem; /* Increased margin */
+    gap: 1rem; /* Adjusted gap for better spacing */
+    margin-top: 1.5rem; /* Adjusted margin */
+    margin-bottom: 2rem; /* Adjusted margin */
     flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
 }
 
 .admin-nav-link {
-    padding: 0.8rem 2rem; /* Larger padding */
-    font-size: 1.1rem; /* Larger font size */
-    border-radius: 10px; /* Slightly more rounded corners */
-    min-width: 180px; /* Ensure a minimum width for consistency */
+    padding: 0.7rem 1.5rem; /* Adjusted padding */
+    font-size: 1rem; /* Adjusted font size */
+    border-radius: 8px; /* Adjusted border-radius */
+    min-width: 150px; /* Adjusted minimum width */
     text-align: center; /* Center text within buttons */
+}
+
+@media (max-width: 480px) {
+    .admin-nav {
+        gap: 0.5rem;
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-nav-link {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        min-width: unset; /* Remove min-width on very small screens */
+        flex-grow: 1; /* Allow buttons to grow and fill space */
+    }
 }
 
 .admin-nav-link.active {
